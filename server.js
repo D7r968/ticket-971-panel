@@ -14,6 +14,14 @@ const GH_REPO = process.env.GH_REPO || '';
 const RENDER_KEY = process.env.RENDER_KEY || '';
 const LOG_TOKEN = process.env.LOG_TOKEN || 'change-me';
 const PORT = Number(process.env.PORT) || 3000;
+const LINK_TTL = 12 * 60 * 1000;
+const linkSessions = new Map();
+
+const CLIENTS = {
+  security: { id: '1572299572229840978', name: 'حماية فورية (971)' },
+  ticket: { id: '1573686274420769012', name: 'Ticket 971' }
+};
+const clientId = CLIENTS[BOT_KEY].id;
 
 const META = {
   security: {
@@ -81,6 +89,10 @@ const META = {
 };
 
 const meta = META[BOT_KEY];
+meta.clientId = clientId;
+meta.supportBackup = BOT_KEY === 'security';
+meta.dmUrl = `https://discord.com/channels/@me/${clientId}`;
+meta.securitySite = 'https://security-971-panel.onrender.com';
 
 const DEFAULTS = {
   security: {
@@ -185,15 +197,186 @@ app.get('/api/state', async (req, res) => {
   res.json({ botKey: BOT_KEY, meta, settings, status, events: events.slice().reverse() });
 });
 
-app.get('/api/settings', (req, res) => res.json(settings));
-
-app.post('/api/settings', async (req, res) => {
+function getSettingsHandler(req, res) {
+  res.json(settings);
+}
+async function postSettingsHandler(req, res) {
   try {
     mergeDeep(settings, req.body);
     await saveSettings();
     res.json({ ok: true, settings });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+app.get('/api/settings', getSettingsHandler);
+app.post('/api/settings', postSettingsHandler);
+// البوتات تقرأ من /api/settings/<bot> — لازم يكون JSON مو صفحة HTML
+app.get('/api/settings/:bot', (req, res) =>
+  req.params.bot === BOT_KEY ? getSettingsHandler(req, res) : res.status(404).json({ error: 'not found' })
+);
+app.post('/api/settings/:bot', (req, res) =>
+  req.params.bot === BOT_KEY ? postSettingsHandler(req, res) : res.status(404).json({ error: 'not found' })
+);
+
+/* ───────────────────────────────────────────────────────────
+   ربط حساب ديسكورد: البوت يرسل نتيجة أمر /link إلى هنا
+   ─────────────────────────────────────────────────────────── */
+function cleanCode(raw) {
+  return String(raw || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16);
+}
+
+app.post('/api/link/start', (req, res) => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code;
+  do {
+    code = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  } while (linkSessions.has(code));
+
+  linkSessions.set(code, {
+    code,
+    status: 'pending',
+    createdAt: Date.now(),
+    userId: null,
+    username: null,
+    avatar: null,
+    guilds: []
+  });
+
+  for (const [c, s] of linkSessions) {
+    if (Date.now() - s.createdAt > LINK_TTL) linkSessions.delete(c);
+  }
+
+  res.json({
+    ok: true,
+    code,
+    command: `/link code:${code}`,
+    botName: meta.fixedName,
+    dmUrl: meta.dmUrl,
+    expiresInMinutes: Math.round(LINK_TTL / 60000)
+  });
+});
+
+app.post('/api/link/complete', (req, res) => {
+  if (String(req.header('x-log-token') || '') !== String(LOG_TOKEN)) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  const code = cleanCode(req.body?.code);
+  const session = linkSessions.get(code);
+  if (!session) return res.status(404).json({ error: 'code not found or expired' });
+
+  session.userId = String(req.body?.userId || '');
+  session.username = String(req.body?.username || '');
+  session.avatar = String(req.body?.avatar || '');
+  session.guilds = Array.isArray(req.body?.guilds) ? req.body.guilds : [];
+  session.status = 'linked';
+  session.linkedAt = Date.now();
+
+  events.unshift({
+    ts: Date.now(),
+    type: 'link',
+    title: '🔗 تم ربط ديسكورد',
+    description: `${session.username || session.userId} — ${session.guilds.length} سيرفر`,
+    color: '#23a55a'
+  });
+
+  res.json({ ok: true, token: code, guilds: session.guilds.length });
+});
+
+app.get('/api/link/status', (req, res) => {
+  const code = cleanCode(req.query.code);
+  const session = linkSessions.get(code);
+  if (!session) return res.json({ status: 'pending', code });
+  if (Date.now() - session.createdAt > LINK_TTL) {
+    linkSessions.delete(code);
+    return res.json({ status: 'expired', code });
+  }
+  res.json({
+    status: session.status,
+    code,
+    user: {
+      id: session.userId,
+      username: session.username,
+      avatar: session.avatar
+    },
+    guilds: session.guilds
+  });
+});
+
+app.post('/api/link/logout', (req, res) => {
+  const code = cleanCode(req.body?.code);
+  if (code) linkSessions.delete(code);
+  res.json({ ok: true });
+});
+
+/* ───────────────────────────────────────────────────────────
+   التحكم بالسيرفر: حفظ / استرجاع بضغطة زر
+   ─────────────────────────────────────────────────────────── */
+async function botRequest(pathname, options = {}) {
+  const base = String(meta.health || '').replace(/\/+$/, '');
+  const res = await fetch(base + pathname, {
+    method: options.method || 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-control-token': String(LOG_TOKEN),
+      ...(options.headers || {})
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+    signal: AbortSignal.timeout(60000)
+  });
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 300) }; }
+  return { ok: res.ok, data };
+}
+
+app.post('/api/server/backup', async (req, res) => {
+  if (!meta.supportBackup) return res.status(400).json({ error: 'backup is handled by the security panel' });
+  const guildId = String(req.body?.guildId || '').replace(/\D/g, '');
+  if (!/^\d{15,25}$/.test(guildId)) return res.status(400).json({ error: 'invalid guild id' });
+  try {
+    const r = await botRequest(`/control/backup?guild=${guildId}`, { method: 'POST', body: {} });
+    events.unshift({
+      ts: Date.now(),
+      type: 'backup',
+      title: '💾 حفظ السيرفر',
+      description: r.ok ? `تم الحفظ — ${JSON.stringify(r.data).slice(0, 200)}` : 'فشل الحفظ',
+      color: r.ok ? '#23a55a' : '#ed4245'
+    });
+    res.status(r.ok ? 200 : 502).json(r.data);
+  } catch (err) {
+    res.status(502).json({ ok: false, error: err.message });
+  }
+});
+
+app.post('/api/server/restore', async (req, res) => {
+  if (!meta.supportBackup) return res.status(400).json({ error: 'restore is handled by the security panel' });
+  const guildId = String(req.body?.guildId || '').replace(/\D/g, '');
+  if (!/^\d{15,25}$/.test(guildId)) return res.status(400).json({ error: 'invalid guild id' });
+  try {
+    const r = await botRequest(`/control/restore?guild=${guildId}`, { method: 'POST', body: {} });
+    events.unshift({
+      ts: Date.now(),
+      type: 'restore',
+      title: '♻️ استرجاع السيرفر',
+      description: r.ok ? `تم الاسترجاع — ${JSON.stringify(r.data).slice(0, 200)}` : 'فشل الاسترجاع',
+      color: r.ok ? '#23a55a' : '#ed4245'
+    });
+    res.status(r.ok ? 200 : 502).json(r.data);
+  } catch (err) {
+    res.status(502).json({ ok: false, error: err.message });
+  }
+});
+
+app.get('/api/servers', async (req, res) => {
+  const userId = String(req.query.userId || '').replace(/\D/g, '');
+  if (!/^\d{15,25}$/.test(userId)) return res.json({ ok: false, guilds: [] });
+  try {
+    const r = await botRequest(`/control/guilds?userId=${userId}`);
+    res.json(r.data);
+  } catch (err) {
+    res.json({ ok: false, guilds: [], error: err.message });
   }
 });
 
