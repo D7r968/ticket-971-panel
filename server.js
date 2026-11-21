@@ -29,20 +29,20 @@ const META = {
     descAr: 'يكتشف الحذف والسبام والرايد والتلاعب بالصلاحيات ويرجع كل شي خلال ثواني. تحكم كامل من نفس الموقع.',
     descEn: 'Detects deletion, spam, raids and permission tampering — restores everything in seconds. Full control from one place.',
     featuresAr: [
-      { icon: '🛡️', title: 'استجابة فورية', desc: 'حذف رومين ورا بعض → سحب رتب + باي + إرجاع فوري لكل الرومات والرتب.' },
-      { icon: '💬', title: 'مكافحة السبام', desc: '١٠ رسائل/٥ ثواني أو ٢٠/٦٠ ثانية → تايم أوت ومسح تلقائي.' },
-      { icon: '🚨', title: 'منع الرايد', desc: 'أي بوت غريب يدخل أو ٣ قنوات تنشأ بسرعة → طرد فوري واستعادة.' },
-      { icon: '🔑', title: 'صلاحيات محمية', desc: '/protect add و remove و list محفوظة برول دائم داخل السيرفر.' },
-      { icon: '🔄', title: 'نسخة احتياطية', desc: 'نسخة لكل سيرفر على حدة تتحدث تلقائياً كل ساعة وعند التشغيل.' },
-      { icon: '📜', title: 'سجل الأحداث', desc: 'كل تحذير وعقوبة تظهر لك في تبويب السجل داخل الموقع.' }
+      { icon: '🛡️', title: 'استجابة فورية', desc: 'حذف رومين ورا بعض → سحب رتب + باي + إرجاع فوري لكل الرومات والرتب.', target: 'secDelete' },
+      { icon: '💬', title: 'مكافحة السبام', desc: '١٠ رسائل/٥ ثواني أو ٢٠/٦٠ ثانية → تايم أوت ومسح تلقائي.', target: 'secSpam' },
+      { icon: '🚨', title: 'منع الرايد', desc: 'أي بوت غريب يدخل أو ٣ قنوات تنشأ بسرعة → طرد فوري واستعادة.', target: 'secRaid' },
+      { icon: '🔑', title: 'صلاحيات محمية', desc: '/protect add و remove و list محفوظة برول دائم داخل السيرفر.', target: 'perms' },
+      { icon: '🔄', title: 'نسخة احتياطية', desc: 'نسخة لكل سيرفر على حدة تتحدث تلقائياً كل ساعة وعند التشغيل.', target: 'secBackup' },
+      { icon: '📜', title: 'سجل الأحداث', desc: 'كل تحذير وعقوبة تظهر لك في تبويب السجل داخل الموقع.', target: 'log' }
     ],
     featuresEn: [
-      { icon: '🛡️', title: 'Instant response', desc: 'Two deleted channels → strip roles + ban + instant restore of everything.' },
-      { icon: '💬', title: 'Anti-spam', desc: '10 msgs/5s or 20/60s → instant timeout and message purge.' },
-      { icon: '🚨', title: 'Anti-raid', desc: 'Any bot joins or 3 channels created fast → instant kick and restore.' },
-      { icon: '🔑', title: 'Protected permissions', desc: '/protect add, remove and list stored in a persistent Discord role.' },
-      { icon: '🔄', title: 'Backups', desc: 'Per-server snapshot refreshed hourly and on startup.' },
-      { icon: '📜', title: 'Event log', desc: 'Every warning and punishment appears in the site log tab.' }
+      { icon: '🛡️', title: 'Instant response', desc: 'Two deleted channels → strip roles + ban + instant restore of everything.', target: 'secDelete' },
+      { icon: '💬', title: 'Anti-spam', desc: '10 msgs/5s or 20/60s → instant timeout and message purge.', target: 'secSpam' },
+      { icon: '🚨', title: 'Anti-raid', desc: 'Any bot joins or 3 channels created fast → instant kick and restore.', target: 'secRaid' },
+      { icon: '🔑', title: 'Protected permissions', desc: '/protect add, remove and list stored in a persistent Discord role.', target: 'perms' },
+      { icon: '🔄', title: 'Backups', desc: 'Per-server snapshot refreshed hourly and on startup.', target: 'secBackup' },
+      { icon: '📜', title: 'Event log', desc: 'Every warning and punishment appears in the site log tab.', target: 'log' }
     ],
     stepsAr: ['ضيف البوت لسيرفرك بصلاحيات إدارية', 'ارفع رول البوت لأعلى ترتيب ممكن', 'اضبط الأرقام من تبويب السيطرة — التغيير يوصل خلال ٣٠ ثانية'],
     stepsEn: ['Invite the bot with admin permissions', 'Move its role near the top of the hierarchy', 'Tune the limits in the Control tab — applied within 30 seconds']
@@ -60,20 +60,20 @@ const META = {
     descAr: 'زر واحد يفتح قائمة: شراء من متجر / استفسار / حل مشكلة، وبعدها قناة خاصة. تحكم كامل بالنصوص والألوان من نفس الموقع.',
     descEn: 'One button opens a menu: buy / question / problem, then a private channel. Edit all texts and colors from one place.',
     featuresAr: [
-      { icon: '🎫', title: 'زر واحد', desc: 'لوحة بسيطة تفتح قائمة الأنواع ثم قناة خاصة بالمستخدم وفريق الدعم.' },
-      { icon: '🛒', title: 'أنواع جاهزة', desc: 'شراء من متجر، استفسار، حل مشكلة — قابلة للتعديل من الملف.' },
-      { icon: '👋', title: 'رسائل جاهزة', desc: 'عنوان البانل ورسالة الترحيب تتعدل من تبويب التذاكر وتوصل فوراً.' },
-      { icon: '⏰', title: 'منشن محسوب', desc: 'أول منشن تحذير، والثاني خلال ٢٤ ساعة تايم أوت ٣ ساعات.' },
-      { icon: '🎨', title: 'ألوانك أنت', desc: 'لون البانل والمظاهر كلها من حقل واحد في اللوحة.' },
-      { icon: '📊', title: 'حد التذاكر', desc: 'تحكم بعدد التذاكر المسموحة لكل عضو في نفس الوقت.' }
+      { icon: '🎫', title: 'زر واحد', desc: 'لوحة بسيطة تفتح قائمة الأنواع ثم قناة خاصة بالمستخدم وفريق الدعم.', target: 'tickPanel' },
+      { icon: '🛒', title: 'أنواع جاهزة', desc: 'شراء من متجر، استفسار، حل مشكلة — عدّل أسماء البانل والنصوص من هنا.', target: 'tickPanel' },
+      { icon: '👋', title: 'رسائل جاهزة', desc: 'عنوان البانل ورسالة الترحيب تتعدل من تبويب التذاكر وتوصل فوراً.', target: 'tickWelcome' },
+      { icon: '⏰', title: 'منشن محسوب', desc: 'أول منشن تحذير، والثاني خلال ٢٤ ساعة تايم أوت ٣ ساعات.', target: 'tickMention' },
+      { icon: '🎨', title: 'ألوانك أنت', desc: 'لون البانل والمظاهر كلها من حقل واحد في اللوحة.', target: 'tickColor' },
+      { icon: '📊', title: 'حد التذاكر', desc: 'تحكم بعدد التذاكر المسموحة لكل عضو في نفس الوقت.', target: 'tickIds' }
     ],
     featuresEn: [
-      { icon: '🎫', title: 'One button', desc: 'Clean panel opens a type menu then a private support channel.' },
-      { icon: '🛒', title: 'Ready types', desc: 'Buy, question, problem — editable in the source file.' },
-      { icon: '👋', title: 'Ready texts', desc: 'Panel title and welcome message editable in the Tickets tab, applied instantly.' },
-      { icon: '⏰', title: 'Mention rules', desc: 'First mention warns, second within 24h gives a 3 hour timeout.' },
-      { icon: '🎨', title: 'Your colors', desc: 'Panel color and embeds controlled from a single field.' },
-      { icon: '📊', title: 'Ticket limit', desc: 'Control how many open tickets each member can have.' }
+      { icon: '🎫', title: 'One button', desc: 'Clean panel opens a type menu then a private support channel.', target: 'tickPanel' },
+      { icon: '🛒', title: 'Ready types', desc: 'Buy, question, problem — edit panel titles and texts right here.', target: 'tickPanel' },
+      { icon: '👋', title: 'Ready texts', desc: 'Panel title and welcome message editable in the Tickets tab, applied instantly.', target: 'tickWelcome' },
+      { icon: '⏰', title: 'Mention rules', desc: 'First mention warns, second within 24h gives a 3 hour timeout.', target: 'tickMention' },
+      { icon: '🎨', title: 'Your colors', desc: 'Panel color and embeds controlled from a single field.', target: 'tickColor' },
+      { icon: '📊', title: 'Ticket limit', desc: 'Control how many open tickets each member can have.', target: 'tickIds' }
     ],
     stepsAr: ['ضيف البوت لسيرفرك بصلاحيات إدارية', 'حدد رول الدعم والكاتيجوري من تبويب التذاكر', 'اعمل Panel من الأمر الخاص بالبوت — التعديلات توصل خلال ٣٠ ثانية'],
     stepsEn: ['Invite the bot with admin permissions', 'Set the support role and category in the Tickets tab', 'Send the panel command — changes apply within 30 seconds']
@@ -85,6 +85,7 @@ const meta = META[BOT_KEY];
 const DEFAULTS = {
   security: {
     ownerId: '', guildId: '', logChannelId: '',
+    backupEnabled: true, autoBackupInterval: 3600000,
     instantResponse: {
       enabled: true, alertEnabled: true, deleteWindowMs: 60000, deleteThreshold: 2,
       spamWindowMs: 5000, spamThreshold: 10, spamTimeoutMinutes: 10,
