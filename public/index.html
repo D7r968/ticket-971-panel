@@ -105,6 +105,42 @@ code{background:#0b0e15;border:1px solid var(--line);padding:2px 6px;border-radi
 @keyframes up{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
 footer{border-top:1px solid var(--line);margin-top:50px;padding:24px 0;color:var(--muted);font-size:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 @media(max-width:860px){.hero{grid-template-columns:1fr;padding-top:44px;gap:28px}.preview{max-width:520px}}
+/* ── ربط ديسكورد / اختيار السيرفر ── */
+.user-chip{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 5px;font-size:11px;font-weight:700;cursor:pointer}
+.user-chip img{width:24px;height:24px;border-radius:50%;object-fit:cover}
+.server-banner{display:none;align-items:center;gap:12px;background:linear-gradient(100deg,rgba(35,165,90,.14),rgba(255,255,255,.03));border:1px solid rgba(35,165,90,.35);border-radius:14px;padding:10px 14px;margin:14px auto 0;width:min(1180px,92%);flex-wrap:wrap}
+.server-banner.show{display:flex}
+.server-banner img{width:38px;height:38px;border-radius:11px;object-fit:cover;background:#232938}
+.server-banner .sb-label{font-size:10px;color:#7ee2a8;font-weight:800}
+.server-banner .sb-name{font-size:14px;font-weight:800}
+.modal-backdrop{position:fixed;inset:0;z-index:60;background:rgba(4,6,10,.86);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:18px}
+.modal-backdrop.show{display:flex}
+.modal{width:min(740px,100%);max-height:88vh;overflow:auto;background:linear-gradient(160deg,#171d29,#0e121a);border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.75);padding:26px}
+.modal-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.modal-head img{width:52px;height:52px;border-radius:15px;object-fit:cover}
+.modal-head h3{margin:0;font-size:19px}
+.modal-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.modal-head .spacer{flex:1}
+.code-box{font-family:ui-monospace,SFMono-Regular,monospace;font-size:30px;letter-spacing:9px;text-align:center;background:#0a0d14;border:1px dashed color-mix(in srgb,var(--accent) 75%,#fff);border-radius:14px;padding:16px 10px;color:#fff;font-weight:800;direction:ltr}
+.how-list{list-style:none;padding:0;margin:16px 0;counter-reset:h}
+.how-list li{counter-increment:h;position:relative;padding:10px 12px 10px 48px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:11px;margin-bottom:9px;font-size:12.5px;color:#d6dcec}
+html[dir=rtl] .how-list li{padding:10px 48px 10px 12px}
+.how-list li::before{content:counter(h);position:absolute;inset-inline-start:11px;top:10px;width:26px;height:26px;border-radius:8px;background:color-mix(in srgb,var(--accent) 25%,transparent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:12px}
+.srv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:12px}
+.srv{position:relative;background:rgba(255,255,255,.04);border:2px solid var(--line);border-radius:15px;padding:14px;cursor:pointer;transition:.18s;min-height:132px}
+.srv:hover{transform:translateY(-3px);border-color:var(--accent)}
+.srv.bot{border-color:#23a55a;box-shadow:0 0 0 4px rgba(35,165,90,.13),0 0 26px rgba(35,165,90,.18)}
+.srv img{width:44px;height:44px;border-radius:13px;object-fit:cover;background:#232938}
+.srv .nm{font-weight:800;font-size:13px;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srv .meta{font-size:10.5px;color:var(--muted);margin-top:2px}
+.srv .tag{position:absolute;inset-inline-end:10px;top:10px;font-size:9.5px;font-weight:900;border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.08);color:var(--muted)}
+.srv.bot .tag{background:rgba(35,165,90,.2);color:#7ee2a8}
+.backup-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;padding:13px 15px;border:1px solid rgba(35,165,90,.3);border-radius:14px;background:rgba(35,165,90,.06);margin-bottom:18px}
+.backup-bar .bt{font-size:12px;font-weight:800;margin-inline-end:auto}
+.backup-bar .bt small{display:block;font-weight:500;color:var(--muted);font-size:10.5px}
+.link-note{color:var(--muted);font-size:11.5px;margin:10px 0 0}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -112,9 +148,19 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:24px 0;color:var
   <div class="brand"><img class="avatar" id="avatar" alt="" /><div><span id="brandName">…</span><small id="brandSub">بوت ديسكورد</small></div></div>
   <div class="spacer"></div>
   <span class="pill"><span class="dot" id="dot"></span><span id="statusText">…</span></span>
+  <div class="user-chip" id="userChip" onclick="openServers()" title="تغيير الحساب أو السيرفر"><img id="userAvatar" alt="" /><span id="userName">اربط ديسكوردك</span></div>
   <a class="btn small contact-btn" id="contactTop" href="https://discord.gg/59u69YJzPD" target="_blank">💬 تواصل معنا</a>
   <button class="lang" id="langBtn" onclick="toggleLang()">EN</button>
 </div></header>
+
+<div class="server-banner" id="serverBanner">
+  <img id="sbIcon" alt="" />
+  <div><div class="sb-label" id="sbLabel">أنت تدير الآن</div><div class="sb-name" id="sbName">—</div></div>
+  <div class="spacer"></div>
+  <button class="btn small" onclick="openServers()" id="sbChange">🔄 تغيير السيرفر</button>
+  <button class="btn small" onclick="doBackup()" id="sbBackup">💾 حفظ السيرفر</button>
+  <button class="btn small danger" onclick="doRestore()" id="sbRestore">♻️ استرجاع</button>
+</div>
 
 <main>
 <div class="wrap">
@@ -184,6 +230,54 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:24px 0;color:var
   </section>
 </div>
 </main>
+
+<!-- نافذة ربط ديسكورد -->
+<div class="modal-backdrop" id="linkModal">
+  <div class="modal">
+    <div class="modal-head">
+      <img id="lmAvatar" alt="" />
+      <div><h3 id="lmTitle">🔗 اربط حساب ديسكوردك</h3><p id="lmSub">خطوة واحدة وبعدها تختار السيرفر اللي تبي تديره</p></div>
+      <div class="spacer"></div>
+      <button class="btn small" onclick="closeLink()" id="lmClose">إغلاق</button>
+    </div>
+    <div id="linkStep1">
+      <p class="note" id="lmHow">افتح الديسكورد، روح ل أي سيرفر البوت فيه، واكتب الأمر هذا بالشات:</p>
+      <div class="code-box" id="lmCode">------</div>
+      <ul class="how-list" id="lmSteps">
+        <li id="lmS1">انسخ الكود فوق (اضغط عليه).</li>
+        <li id="lmS2">افتح الديسكورد واكتب <b>/link</b> ثم الصق الكود في خانة <b>code</b>.</li>
+        <li id="lmS3">ارجع لهنا — السيرفرات بتظهر لوحدها.</li>
+      </ul>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn main small" onclick="copyCode()" id="lmCopy">📋 انسخ الأمر</button>
+        <a class="btn small" id="lmOpen" href="https://discord.com/app" target="_blank">🤖 افتح الديسكورد</a>
+        <button class="btn small" onclick="checkLink()" id="lmCheck">✅ تم، تحقق</button>
+      </div>
+      <p class="link-note" id="lmNote"></p>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة اختيار السيرفر -->
+<div class="modal-backdrop" id="serverModal">
+  <div class="modal">
+    <div class="modal-head">
+      <img id="svAvatar" alt="" />
+      <div><h3 id="svTitle">اختر السيرفر</h3><p id="svSub">السيرفرات اللي عندك فيها صلاحية أدمن</p></div>
+      <div class="spacer"></div>
+      <button class="btn small" onclick="closeServers()" id="svClose">إغلاق</button>
+    </div>
+    <p class="note" id="svHint">🟢 الحدود الخضراء = البوت موجود داخل السيرفر وتقدر تعدّل عليه مباشرة.</p>
+    <div class="srv-grid" id="srvGrid"></div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:18px">
+      <button class="btn small" onclick="refreshServers()" id="svRefresh">🔄 تحديث القائمة</button>
+      <button class="btn small" onclick="openLinkModal()" id="svRelink">🔗 ربط حساب ثاني</button>
+      <button class="btn small" onclick="addManualServer()" id="svAdd">➕ أضف سيرفر يدوياً</button>
+    </div>
+    <p class="link-note" id="svNote"></p>
+  </div>
+</div>
+
 <footer><div class="wrap" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;width:100%"><span id="footName">…</span><span>•</span><span id="footNote">لوحة مستقلة لهذا البوت فقط</span><span class="spacer"></span><a href="https://discord.gg/59u69YJzPD" target="_blank" id="footContact">💬 تواصل معنا ↗</a><a href="#" id="footInvite">Discord Invite ↗</a></div></footer>
 <div class="toast" id="toast"></div>
 
@@ -194,7 +288,23 @@ const UI = {
    contact:'💬 تواصل معنا',contactHero:'💬 تواصل معنا',footContact:'💬 تواصل معنا ↗',
    editNow:'✏️ عدّل الإعدادات الآن',editHint:'اضغط على أي بطاقة تروح مباشرة للإعداد اللي يخصها — أو استخدم زر التعديل.',
    edit:'✏️ تعديل',backupEnabled:'تفعيل النسخ الاحتياطي',autoBackupInterval:'فترة النسخ الاحتياطي (مللي)',
-   menu1:'الأمان',menu1d:'حماية فورية واستعادة تلقائية',menu2:'السيطرة',menu2d:'كل الإعدادات من مكان واحد',menu3:'المميزات',menu3d:'شوف كل اللي البوت يسويه',
+   linkTitle:'🔗 اربط حساب ديسكوردك',linkSub:'خطوة واحدة وبعدها تختار السيرفر اللي تبي تديره',
+    linkHow:'افتح الديسكورد، روح ل أي سيرفر البوت فيه، واكتب الأمر هذا بالشات:',
+    linkS1:'انسخ الكود فوق (اضغط عليه).',linkS2:'اكتب /link والصق الكود في خانة code.',linkS3:'ارجع لهنا — السيرفرات بتظهر لوحدها.',
+    copy:'📋 انسخ الأمر',copied:'✅ تم النسخ',openDiscord:'🤖 افتح الديسكورد',check:'✅ تم، تحقق',
+    checking:'⏳ جاري التحقق...',linkFail:'ما لقينا الربط بعد — تأكد إنك كتبت الأمر في سيرفر البوت فيه ورولك أدمن.',
+    linkedAs:'مرتبط باسم',changeAccount:'تغيير الحساب / السيرفر',notLinked:'اربط ديسكوردك',
+    svTitle:'اختر السيرفر',svSub:'السيرفرات اللي عندك فيها صلاحية أدمن',
+    svHint:'🟢 الحدود الخضراء = البوت موجود داخل السيرفر وتقدر تعدّل عليه مباشرة.',
+    svRefresh:'🔄 تحديث القائمة',svRelink:'🔗 ربط حساب ثاني',svAdd:'➕ أضف سيرفر يدوياً',
+    svEmpty:'ما لقينا سيرفرات — جرّب تحديث القائمة أو اربط حسابك من جديد.',
+    svSelect:'✅ صرت تدير',botHere:'البوت موجود',adminHere:'أدمن',members:'عضو',
+    sbLabel:'أنت تدير الآن',sbChange:'🔄 تغيير السيرفر',sbBackup:'💾 حفظ السيرفر',sbRestore:'♻️ استرجاع',
+    backup:'💾 حفظ السيرفر',restore:'♻️ استرجاع السيرفر',backupTitle:'حفظ واسترجاع السيرفر',
+    backupHint:'ضغطة واحدة تحفظ كل الرتب والقنوات والصلاحيات، وترجعها نفس ما كانت لو أحد خرب.',
+    restoring:'⏳ جاري الاسترجاع...',backupDone:'✅ تم الحفظ',restoreDone:'✅ تم الاسترجاع — كل شي رجع كما كان',
+    manualName:'اكتب اسم السيرفر',manualId:'آي دي السيرفر (اختياري)',manualAdd:'إضافة',
+    close:'إغلاق',secOnly:'الحفظ والاسترجاع التلقائي متاح في موقع الحماية.',menu1:'الأمان',menu1d:'حماية فورية واستعادة تلقائية',menu2:'السيطرة',menu2d:'كل الإعدادات من مكان واحد',menu3:'المميزات',menu3d:'شوف كل اللي البوت يسويه',
    st1:'شغال دايم',st2:'تطبيق التعديلات',st3:'عربي وإنجليزي',
    kFeatures:'✨ المميزات',hFeatures:'كل شي تحتاجينه',pFeatures:'مجموعة أدوات مصممة عشان سيرفرك يبقى شغال ومحمي بدون ما تتابعه يدوياً.',
    kHow:'🚀 البداية',hHow:'ثلاث خطوات وبس',
@@ -218,7 +328,24 @@ const UI = {
    mentionWarnHours:'ساعات قبل التحذير',mentionTimeoutHours:'ساعات قبل التايم أوت',mentionTimeoutEnabled:'تفعيل تايم أوت التنبيه'
  },
  en:{ invite:'➕ Add bot now', features:'✨ View features', control:'🎛️ Control', addInvite:'Add bot now',
-   badge:'🟢 Online 24/7', brandSub:'Discord bot', prevSub:'Quick control panel',
+   badge:'🟢 Online 24/7', brandSub:'Discord bot',
+    linkTitle:'🔗 Link your Discord',linkSub:'One step, then pick the server you want to manage',
+    linkHow:'Open Discord, go to any server the bot is in, and type this command:',
+    linkS1:'Copy the code above.',linkS2:'Type /link and paste the code in the code field.',linkS3:'Come back here — your servers appear automatically.',
+    copy:'📋 Copy command',copied:'✅ Copied',openDiscord:'🤖 Open Discord',check:'✅ Done, check',
+    checking:'⏳ Checking...',linkFail:'No link found yet — make sure you used the command in a server the bot is in and you are an admin.',
+    linkedAs:'Linked as',changeAccount:'Change account / server',notLinked:'Link your Discord',
+    svTitle:'Choose a server',svSub:'Servers where you have Administrator',
+    svHint:'🟢 Green border = the bot is in that server and you can edit it right away.',
+    svRefresh:'🔄 Refresh list',svRelink:'🔗 Link another account',svAdd:'➕ Add server manually',
+    svEmpty:'No servers found — refresh the list or link your account again.',
+    svSelect:'✅ Now managing',botHere:'Bot is here',adminHere:'Admin',members:'members',
+    sbLabel:'Now managing',sbChange:'🔄 Change server',sbBackup:'💾 Save server',sbRestore:'♻️ Restore',
+    backup:'💾 Save server',restore:'♻️ Restore server',backupTitle:'Save & restore server',
+    backupHint:'One click saves every role, channel and permission — and puts everything back exactly as it was.',
+    restoring:'⏳ Restoring...',backupDone:'✅ Saved',restoreDone:'✅ Restored — everything is back as it was',
+    manualName:'Server name',manualId:'Server ID (optional)',manualAdd:'Add',
+    close:'Close',secOnly:'Automatic save & restore is available on the security site.', prevSub:'Quick control panel',
    contact:'💬 Contact us',contactHero:'💬 Contact us',footContact:'💬 Contact us ↗',
    editNow:'✏️ Edit settings now',editHint:'Click any card to jump straight to its setting — or use the edit button.',
    edit:'✏️ Edit',backupEnabled:'Enable backups',autoBackupInterval:'Backup interval (ms)',
@@ -270,6 +397,14 @@ const TICKET_SCHEMA = [
 const CONTACT='https://discord.gg/59u69YJzPD';
 let lang=localStorage.getItem('panel-lang')||'ar';
 let state=null;
+let linkCode=localStorage.getItem('971-link-code')||'';
+let sessionUser=null;
+let sessionGuilds=[];
+let manualGuilds=[];
+try{manualGuilds=JSON.parse(localStorage.getItem('971-manual-guilds')||'[]')}catch(e){manualGuilds=[]}
+let selectedGuild=null;
+try{selectedGuild=JSON.parse(localStorage.getItem('971-selected-guild')||'null')}catch(e){selectedGuild=null}
+let linkTimer=null;
 function T(k){return (UI[lang]&&UI[lang][k])||k}
 function getPath(o,p){return p.split('.').reduce((a,k)=>a==null?undefined:a[k],o)}
 function setPath(o,p,v){const ks=p.split('.');let a=o;for(let i=0;i<ks.length-1;i++){if(!a[ks[i]]||typeof a[ks[i]]!=='object')a[ks[i]]={};a=a[ks[i]]}a[ks[ks.length-1]]=v}
@@ -285,6 +420,28 @@ function applyLang(){
  document.getElementById('tagline').textContent=lang==='ar'?(m.taglineAr||''):(m.taglineEn||'');
  document.getElementById('desc').textContent=lang==='ar'?(m.descAr||''):(m.descEn||'');
  document.getElementById('badge').textContent=T('badge');
+ document.getElementById('lmTitle').textContent=T('linkTitle');
+ document.getElementById('lmSub').textContent=T('linkSub');
+ document.getElementById('lmHow').textContent=T('linkHow');
+ document.getElementById('lmS1').textContent=T('linkS1');
+ document.getElementById('lmS2').innerHTML=T('linkS2');
+ document.getElementById('lmS3').textContent=T('linkS3');
+ document.getElementById('lmCopy').textContent=T('copy');
+ document.getElementById('lmOpen').textContent=T('openDiscord');
+ document.getElementById('lmCheck').textContent=T('check');
+ document.getElementById('lmClose').textContent=T('close');
+ document.getElementById('svTitle').textContent=T('svTitle');
+ document.getElementById('svSub').textContent=T('svSub');
+ document.getElementById('svHint').textContent=T('svHint');
+ document.getElementById('svRefresh').textContent=T('svRefresh');
+ document.getElementById('svRelink').textContent=T('svRelink');
+ document.getElementById('svAdd').textContent=T('svAdd');
+ document.getElementById('svClose').textContent=T('close');
+ document.getElementById('sbLabel').textContent=T('sbLabel');
+ document.getElementById('sbChange').textContent=T('sbChange');
+ document.getElementById('sbBackup').textContent=T('sbBackup');
+ document.getElementById('sbRestore').textContent=T('sbRestore');
+ document.getElementById('userName').textContent=sessionUser?(sessionUser.username||sessionUser.id):T('notLinked');
  document.getElementById('contactTop').textContent=T('contact');
  document.getElementById('contactHero').textContent=T('contactHero');
  document.getElementById('footContact').textContent=T('footContact');
@@ -375,6 +532,146 @@ async function postSettings(){
 }
 async function saveSettings(){try{collect();toast(T('saving'));await postSettings();toast(T('saved'))}catch(e){toast(T('fail')+' '+e.message)}}
 async function restartBot(){if(!confirm(T('restartBtn')+'?'))return;try{const r=await fetch('/api/restart',{method:'POST'});const j=await r.json();toast(j.ok?T('saved'):T('fail'))}catch(e){toast(T('fail'))}}
+/* ─────────────────────────────────────────────
+   ربط ديسكورد → اختيار السيرفر → حفظ/استرجاع
+   ───────────────────────────────────────────── */
+function closeLink(){document.getElementById('linkModal').classList.remove('show');if(linkTimer){clearInterval(linkTimer);linkTimer=null}}
+function closeServers(){document.getElementById('serverModal').classList.remove('show')}
+function setLinkNote(text){document.getElementById('lmNote').textContent=text||''}
+function startLinkPolling(){if(linkTimer)clearInterval(linkTimer);linkTimer=setInterval(async()=>{if(!linkCode)return;const d=await fetchLinkStatus();if(d?.status==='linked'){applySession(d);closeLink();openServers()}},3000)}
+async function newLink(){
+ try{
+  const r=await fetch('/api/link/start',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+  const d=await r.json();
+  if(!d.ok)throw new Error(d.error||'fail');
+  linkCode=d.code;localStorage.setItem('971-link-code',linkCode);
+  document.getElementById('lmCode').textContent=linkCode;
+  document.getElementById('lmOpen').href=d.dmUrl||'https://discord.com/app';
+  setLinkNote((d.botName?d.botName+' • ':'')+(d.command||'')+' • '+(d.expiresInMinutes||12)+' min');
+  startLinkPolling();
+ }catch(e){setLinkNote('❌ '+e.message);toast('❌ '+e.message)}
+}
+function openLinkModal(){
+ closeServers();document.getElementById('linkModal').classList.add('show');
+ if(!linkCode)newLink();
+ else{
+  document.getElementById('lmCode').textContent=linkCode;
+  setLinkNote(`/link code:${linkCode}`);
+  startLinkPolling();fetchLinkStatus().then((d)=>{if(d?.status==='linked'){applySession(d);closeLink();openServers()}});
+ }
+}
+async function copyCode(){
+ const text=`/link code:${linkCode||'------'}`;
+ try{await navigator.clipboard.writeText(text);document.getElementById('lmCopy').textContent=T('copied')}
+ catch(e){window.prompt(T('copy')+':',text)}
+}
+async function fetchLinkStatus(){
+ if(!linkCode)return null;
+ try{const r=await fetch('/api/link/status?code='+encodeURIComponent(linkCode));return await r.json()}catch(e){return null}
+}
+async function checkLink(){
+ const btn=document.getElementById('lmCheck');btn.innerHTML='<span class="spin"></span> '+T('checking');
+ const d=await fetchLinkStatus();btn.textContent=T('check');
+ if(d?.status==='linked'){applySession(d);closeLink();openServers()}
+ else setLinkNote(T('linkFail'));
+}
+function applySession(d){
+ if(!d)return;
+ if(d.code)linkCode=d.code;
+ sessionUser=d.user||null;sessionGuilds=Array.isArray(d.guilds)?d.guilds:[];
+ if(sessionUser?.id)localStorage.setItem('971-link-code',linkCode);
+ if(sessionUser?.avatar)document.getElementById('userAvatar').src=sessionUser.avatar;
+ applyLang();updateSessionUI();
+}
+function updateSessionUI(){
+ const chip=document.getElementById('userChip');
+ document.getElementById('userName').textContent=sessionUser?(sessionUser.username||sessionUser.id):T('notLinked');
+ if(sessionUser?.avatar)document.getElementById('userAvatar').src=sessionUser.avatar;
+ chip.title=sessionUser?T('changeAccount'):T('notLinked');
+ const banner=document.getElementById('serverBanner');
+ banner.classList.toggle('show',!!selectedGuild);
+ if(selectedGuild){
+  document.getElementById('sbName').textContent=selectedGuild.name||selectedGuild.id;
+  if(selectedGuild.icon)document.getElementById('sbIcon').src=selectedGuild.icon;
+ }
+ const support=!!(state?.meta?.supportBackup);
+ document.getElementById('sbBackup').style.display=support?'':'none';
+ document.getElementById('sbRestore').style.display=support?'':'none';
+}
+function allGuilds(){
+ const out=[];const seen=new Set();
+ for(const g of [...(sessionGuilds||[]),...(manualGuilds||[])]){
+  if(!g||!g.id||seen.has(g.id))continue;seen.add(g.id);out.push(g);
+ }
+ return out;
+}
+function renderServers(){
+ const grid=document.getElementById('srvGrid'),list=allGuilds(),m=state?.meta||{};
+ document.getElementById('svAvatar').src=m.avatar||'';
+ grid.innerHTML=list.length?list.map((g)=>`<div class="srv ${g.botPresent?'bot':''}" onclick="selectServer('${g.id}')">
+   <span class="tag">${g.botPresent?T('botHere'):T('adminHere')}</span>
+   <img src="${g.icon||''}" alt="" />
+   <div class="nm">${g.name||g.id}</div>
+   <div class="meta">${g.memberCount?g.memberCount+' '+T('members'):''}${g.owner?' ★':''}</div>
+  </div>`).join(''):`<div class="card" style="grid-column:1/-1">${T('svEmpty')}</div>`;
+ document.getElementById('svNote').textContent=m.supportBackup===false?T('secOnly'):'';
+}
+async function openServers(){
+ closeLink();
+ if(!linkCode)return openLinkModal();
+ const d=await fetchLinkStatus();
+ if(d?.status!=='linked')return openLinkModal();
+ applySession(d);renderServers();document.getElementById('serverModal').classList.add('show');
+}
+async function refreshServers(){
+ const d=await fetchLinkStatus();
+ if(d?.status==='linked')applySession(d);
+ if(sessionUser?.id){
+  try{
+   const r=await fetch('/api/servers?userId='+encodeURIComponent(sessionUser.id));
+   const j=await r.json();
+   if(j?.ok&&Array.isArray(j.guilds)&&j.guilds.length)sessionGuilds=j.guilds;
+  }catch(e){/* نستخدم قائمة أمر /link */}
+ }
+ renderServers();toast('✅ '+T('svRefresh').replace(/^🔄\s*/,''));
+}
+function selectServer(id){
+ const g=allGuilds().find((x)=>String(x.id)===String(id));
+ if(!g)return;
+ selectedGuild=g;localStorage.setItem('971-selected-guild',JSON.stringify(g));
+ closeServers();updateSessionUI();toast(T('svSelect')+': '+g.name);
+ document.getElementById('control').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function addManualServer(){
+ const name=window.prompt(T('manualName'));
+ if(!name)return;
+ const raw=window.prompt(T('manualId')+' (123456789012345678)','')||'';
+ const id=String(raw).replace(/\D/g,'');
+ const g={id:id||('manual-'+Date.now()),name:name.trim(),botPresent:false,adminHere:true};
+ manualGuilds.push(g);localStorage.setItem('971-manual-guilds',JSON.stringify(manualGuilds));
+ renderServers();
+}
+async function doBackup(){
+ if(!selectedGuild?.id)return openServers();
+ const btn=document.getElementById('sbBackup');btn.innerHTML='<span class="spin"></span>';
+ try{
+  const r=await fetch('/api/server/backup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guildId:selectedGuild.id})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok||d.ok===false)throw new Error(d.error||`HTTP ${r.status}`);
+  toast(T('backupDone'));load();
+ }catch(e){toast('❌ '+e.message)}finally{btn.textContent=T('sbBackup')}
+}
+async function doRestore(){
+ if(!selectedGuild?.id)return openServers();
+ if(!confirm(T('restore')+'?'))return;
+ const btn=document.getElementById('sbRestore');btn.innerHTML='<span class="spin"></span> '+T('restoring');
+ try{
+  const r=await fetch('/api/server/restore',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guildId:selectedGuild.id})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok||d.ok===false)throw new Error(d.error||`HTTP ${r.status}`);
+  toast(T('restoreDone'));load();
+ }catch(e){toast('❌ '+e.message)}finally{btn.textContent=T('sbRestore')}
+}
 function render(){
  applyLang();if(!state)return;
  const m=state.meta;document.documentElement.style.setProperty('--accent',m.accent||'#5865f2');
@@ -382,9 +679,24 @@ function render(){
  for(const id of ['inviteBtn','prevInvite','footInvite'])document.getElementById(id).href=m.invite;
  for(const id of ['contactTop','contactHero','footContact'])document.getElementById(id).href=CONTACT;
  document.title=(lang==='ar'?m.fixedName:m.fixedNameEn)+' — Panel';
- renderFeatures();renderSettings();renderEvents();
+ renderFeatures();renderSettings();renderEvents();updateSessionUI();
 }
-async function load(){try{const r=await fetch('/api/state');state=await r.json();render()}catch(e){toast('❌ '+e.message)}}
+let askedToLink=false;
+async function load(){
+ try{
+  const r=await fetch('/api/state');state=await r.json();render();
+  if(!askedToLink){
+   askedToLink=true;
+   if(!linkCode)openLinkModal();
+   else{
+    const d=await fetchLinkStatus();
+    if(d?.status==='linked')applySession(d);
+    else if(d?.status==='expired')openLinkModal();
+    else{updateSessionUI();document.getElementById('lmCode').textContent=linkCode;setLinkNote(`/link code:${linkCode}`);startLinkPolling()}
+   }
+  }
+ }catch(e){toast('❌ '+e.message)}
+}
 render();load();setInterval(load,15000);
 </script>
 </body>
