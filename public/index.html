@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title id="pageTitle">لوحة البوت</title>
+<style>
+:root{
+  --accent:#5865f2; --bg:#090b11; --card:#12161f; --card2:#191f2b;
+  --line:rgba(255,255,255,.09); --txt:#eef1f8; --muted:#9aa5bb;
+  --ok:#23a55a; --warn:#f0a232; --bad:#ed4245;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-gradient(900px 500px at 15% -5%,color-mix(in srgb,var(--accent) 26%,transparent),transparent 70%),radial-gradient(700px 500px at 92% 8%,rgba(80,120,255,.14),transparent 70%),linear-gradient(#090b11,#0c0f17)}
+body::after{content:'';position:fixed;inset:0;z-index:-1;opacity:.16;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(#000,transparent 70%)}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font-family:inherit}
+.wrap{width:min(1180px,92%);margin:auto}
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(16px);background:rgba(9,11,17,.72);border-bottom:1px solid var(--line)}
+.header-in{display:flex;align-items:center;gap:12px;padding:12px 0}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:15px;letter-spacing:.2px}
+.avatar{width:36px;height:36px;border-radius:11px;object-fit:cover;border:2px solid color-mix(in srgb,var(--accent) 70%,#fff);box-shadow:0 0 20px color-mix(in srgb,var(--accent) 45%,transparent)}
+.brand small{display:block;font-size:10px;color:var(--muted);font-weight:600}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:11px;color:var(--muted);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bad);box-shadow:0 0 8px var(--bad)}
+.dot.on{background:var(--ok);box-shadow:0 0 9px var(--ok)}
+.lang{cursor:pointer;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700}
+.lang:hover{border-color:var(--accent)}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center;padding:70px 0 54px}
+.badge{display:inline-flex;align-items:center;gap:8px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 12%,transparent);color:color-mix(in srgb,var(--accent) 65%,#fff);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;margin-bottom:18px}
+h1{margin:0;font-size:clamp(34px,5vw,58px);line-height:1.12;letter-spacing:-1.5px}
+h1 .grad{background:linear-gradient(100deg,var(--accent),#9b8cff 60%,#4fd1ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{margin:18px 0 8px;font-size:18px;font-weight:700;color:#dfe5f5}
+.sub{margin:0;color:var(--muted);max-width:600px;font-size:14px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:11px;padding:12px 20px;font-weight:800;font-size:13px;cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);transition:.18s}
+.btn:hover{transform:translateY(-2px);border-color:var(--accent)}
+.btn.main{background:linear-gradient(120deg,var(--accent),#7c6cff);border-color:transparent;color:#fff;box-shadow:0 10px 30px color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn.ghost{background:transparent}
+.btn.small{padding:7px 12px;font-size:12px;border-radius:8px}
+.btn.danger{color:#ff9b9e;border-color:rgba(237,66,69,.4)}
+.mini-stats{display:flex;gap:26px;flex-wrap:wrap;margin-top:30px}
+.mini-stats div{font-size:11px;color:var(--muted)}
+.mini-stats b{display:block;font-size:20px;color:var(--txt);line-height:1.2}
+/* preview card */
+.preview{position:relative}
+.preview::before{content:'';position:absolute;inset:-40px;background:radial-gradient(circle at 60% 40%,color-mix(in srgb,var(--accent) 30%,transparent),transparent 65%);filter:blur(30px);z-index:-1}
+.glass{background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:20px;box-shadow:0 25px 70px rgba(0,0,0,.45);backdrop-filter:blur(18px)}
+.panelbox{padding:22px}
+.panelhead{display:flex;align-items:center;gap:12px;padding-bottom:15px;border-bottom:1px solid var(--line)}
+.panelhead img{width:48px;height:48px;border-radius:14px}
+.panelhead h3{margin:0;font-size:15px}
+.panelhead p{margin:2px 0 0;font-size:11px;color:var(--muted)}
+.menurow{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:12px;margin-top:10px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.menurow .ic{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--accent) 18%,transparent);font-size:17px}
+.menurow b{font-size:13px}
+.menurow span{display:block;font-size:11px;color:var(--muted)}
+.menurow .arrow{margin-inline-start:auto;color:var(--muted)}
+.preview-btns{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
+.preview-btns .btn{flex:1;white-space:nowrap}
+section.blk{padding:44px 0}
+.sec-head{margin-bottom:24px}
+.sec-head .k{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:1px}
+.sec-head h2{margin:5px 0 6px;font-size:clamp(24px,3vw,34px);letter-spacing:-.6px}
+.sec-head p{margin:0;color:var(--muted);max-width:680px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:15px}
+.card{background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:16px;padding:20px;transition:.2s}
+.card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 55%,transparent);box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.card .ic{font-size:26px}
+.card h4{margin:12px 0 6px;font-size:15px}
+.card p{margin:0;color:var(--muted);font-size:12.5px}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
+.step{counter-increment:s;position:relative;padding:20px 20px 20px 62px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:15px;font-size:13px;color:var(--muted)}
+html[dir=rtl] .step{padding:20px 62px 20px 20px}
+.step::before{content:counter(s);position:absolute;inset-inline-start:18px;top:18px;width:30px;height:30px;border-radius:9px;background:color-mix(in srgb,var(--accent) 22%,transparent);color:color-mix(in srgb,var(--accent) 70%,#fff);display:grid;place-items:center;font-weight:900;font-size:14px}
+/* control */
+.control{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:22px;padding:24px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:14px}
+.tab{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:8px 15px;cursor:pointer;font-size:13px;font-weight:700}
+.tab.active{background:color-mix(in srgb,var(--accent) 20%,transparent);border-color:color-mix(in srgb,var(--accent) 60%,transparent);color:#fff}
+.view{display:none}.view.active{display:block}
+label{display:block;margin-bottom:13px}
+.lbl{display:block;color:var(--muted);font-size:11.5px;margin-bottom:5px;font-weight:600}
+input[type=text],input[type=number],textarea{width:100%;background:#0b0e15;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13px;outline:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+textarea{min-height:78px;resize:vertical}
+.check{display:flex;align-items:center;gap:9px;margin-bottom:11px;cursor:pointer;color:var(--txt);font-size:12.5px}
+.check input{width:17px;height:17px;accent-color:var(--accent)}
+.row{display:flex;gap:8px;align-items:center;margin-bottom:12px}.row input{flex:1}
+ul.list{list-style:none;padding:0;margin:0}
+ul.list li{display:flex;justify-content:space-between;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:7px;font-size:12px}
+code{background:#0b0e15;border:1px solid var(--line);padding:2px 6px;border-radius:5px;color:#b9c6ff;font-size:11px}
+.event{border-inline-start:3px solid var(--accent);background:rgba(255,255,255,.035);border-radius:9px;padding:11px 13px;margin-bottom:9px}
+.event .t{font-size:10.5px;color:var(--muted)}.event .d{color:var(--muted);font-size:12px;margin-top:4px;white-space:pre-wrap}
+.note{color:var(--muted);font-size:12px;margin:0 0 16px}
+.toast{position:fixed;bottom:22px;inset-inline-end:22px;z-index:50;background:#1b2130;border:1px solid var(--line);border-radius:11px;padding:12px 17px;box-shadow:0 16px 45px #0009;display:none;font-weight:700;font-size:13px}
+.toast.show{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+footer{border-top:1px solid var(--line);margin-top:50px;padding:24px 0;color:var(--muted);font-size:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+@media(max-width:860px){.hero{grid-template-columns:1fr;padding-top:44px;gap:28px}.preview{max-width:520px}}
+</style>
+</head>
+<body>
+<header><div class="wrap header-in">
+  <div class="brand"><img class="avatar" id="avatar" alt="" /><div><span id="brandName">…</span><small id="brandSub">بوت ديسكورد</small></div></div>
+  <div class="spacer"></div>
+  <span class="pill"><span class="dot" id="dot"></span><span id="statusText">…</span></span>
+  <button class="lang" id="langBtn" onclick="toggleLang()">EN</button>
+</div></header>
+
+<main>
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <div class="badge" id="badge">🟢 متاح ٢٤/٧</div>
+      <h1><span class="grad" id="heroName">…</span></h1>
+      <p class="lead" id="tagline"></p>
+      <p class="sub" id="desc"></p>
+      <div class="cta">
+        <a class="btn main" id="inviteBtn" href="#" target="_blank">➕ ضيف البوت الآن</a>
+        <a class="btn ghost" href="#features" id="featuresBtn">✨ شوف المميزات</a>
+        <a class="btn ghost" href="#control" id="controlBtn">🎛️ السيطرة</a>
+      </div>
+      <div class="mini-stats">
+        <div><b>24/7</b><span id="st1">شغال دايم</span></div>
+        <div><b>30s</b><span id="st2">تطبيق التعديلات</span></div>
+        <div><b>AR/EN</b><span id="st3">عربي وإنجليزي</span></div>
+      </div>
+    </div>
+    <div class="preview"><div class="glass panelbox">
+      <div class="panelhead"><img id="prevAvatar" alt="" /><div><h3 id="prevName">…</h3><p id="prevSub">لوحة التحكم السريعة</p></div></div>
+      <div class="menurow"><div class="ic">🛡️</div><div><b id="menu1">الأمان</b><span id="menu1d">حماية فورية واستعادة تلقائية</span></div><span class="arrow">‹</span></div>
+      <div class="menurow"><div class="ic">🎛️</div><div><b id="menu2">السيطرة</b><span id="menu2d">كل الإعدادات من مكان واحد</span></div><span class="arrow">‹</span></div>
+      <div class="menurow"><div class="ic">✨</div><div><b id="menu3">المميزات</b><span id="menu3d">شوف كل اللي البوت يسويه</span></div><span class="arrow">‹</span></div>
+      <div class="preview-btns"><a class="btn main small" id="prevInvite" href="#" target="_blank">ضيف البوت الآن</a><a class="btn small" href="#features" id="prevFeat">شوف المميزات</a></div>
+    </div></div>
+  </div>
+
+  <section class="blk" id="features">
+    <div class="sec-head"><div class="k" id="kFeatures">✨ المميزات</div><h2 id="hFeatures">كل شي تحتاجينه</h2><p id="pFeatures"></p></div>
+    <div class="grid" id="featureGrid"></div>
+  </section>
+
+  <section class="blk" id="how">
+    <div class="sec-head"><div class="k" id="kHow">🚀 البداية</div><h2 id="hHow">ثلاث خطوات وبس</h2></div>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <section class="blk" id="control">
+    <div class="control">
+      <div class="sec-head"><div class="k" id="kControl">🎛️ السيطرة</div><h2 id="hControl">لوحة التحكم</h2><p id="pControl"></p></div>
+      <div class="tabs">
+        <button class="tab active" data-view="settings" onclick="showView('settings')" id="tabSettings">⚙️ الإعدادات</button>
+        <button class="tab" data-view="log" onclick="showView('log')" id="tabLog">📜 السجل</button>
+        <button class="tab" data-view="restart" onclick="showView('restart')" id="tabRestart">🔄 إعادة نشر</button>
+      </div>
+      <div class="view active" id="view-settings">
+        <p class="note" id="settingsNote"></p>
+        <div class="grid" id="settingsGrid"></div>
+        <div id="permCard" style="display:none;margin-top:15px" class="card">
+          <h4 id="hPerms">🔑 الصلاحيات المحمية</h4>
+          <p class="note" id="permNote">الأشخاص اللي ما يتعرضون للعقوبات. أضف الآي دي.</p>
+          <div class="row"><input type="text" id="permInput" placeholder="Discord ID" /><button class="btn main small" onclick="addPerm()">＋</button></div>
+          <ul class="list" id="permList"></ul>
+        </div>
+        <div class="cta"><button class="btn main" onclick="saveSettings()" id="saveBtn">💾 حفظ الإعدادات</button></div>
+      </div>
+      <div class="view" id="view-log"><p class="note" id="logNote"></p><div id="eventList"></div></div>
+      <div class="view" id="view-restart">
+        <p class="note" id="restartNote"></p>
+        <button class="btn danger" onclick="restartBot()" id="restartBtn">🔄 إعادة نشر البوت</button>
+      </div>
+    </div>
+  </section>
+</div>
+</main>
+<footer><div class="wrap" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;width:100%"><span id="footName">…</span><span>•</span><span id="footNote">لوحة مستقلة لهذا البوت فقط</span><span class="spacer"></span><a href="#" id="footInvite">Discord Invite ↗</a></div></footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const UI = {
+ ar:{ invite:'➕ ضيف البوت الآن', features:'✨ شوف المميزات', control:'🎛️ السيطرة', addInvite:'ضيف البوت الآن',
+   badge:'🟢 متاح ٢٤/٧', brandSub:'بوت ديسكورد', prevSub:'لوحة التحكم السريعة',
+   menu1:'الأمان',menu1d:'حماية فورية واستعادة تلقائية',menu2:'السيطرة',menu2d:'كل الإعدادات من مكان واحد',menu3:'المميزات',menu3d:'شوف كل اللي البوت يسويه',
+   st1:'شغال دايم',st2:'تطبيق التعديلات',st3:'عربي وإنجليزي',
+   kFeatures:'✨ المميزات',hFeatures:'كل شي تحتاجينه',pFeatures:'مجموعة أدوات مصممة عشان سيرفرك يبقى شغال ومحمي بدون ما تتابعه يدوياً.',
+   kHow:'🚀 البداية',hHow:'ثلاث خطوات وبس',
+   kControl:'🎛️ السيطرة',hControl:'لوحة التحكم',pControl:'عدّل كل شي من هنا — التعديل يوصل للبوت خلال ٣٠ ثانية بدون إعادة نشر.',
+   tabSettings:'⚙️ الإعدادات',tabLog:'📜 السجل',tabRestart:'🔄 إعادة نشر',
+   settingsNote:'القيم milliseconds للوقت. التعديل يُحفظ تلقائياً ويوصل للبوت فوراً.',
+   save:'💾 حفظ الإعدادات',saving:'⏳ جاري الحفظ...',saved:'✅ تم الحفظ — بيوصل للبوت خلال ثوانٍ',fail:'❌ فشل الحفظ',
+   permNote:'الأشخاص اللي ما يتعرضون للعقوبات التلقائية. أضف الآي دي أو @الشخص.',hPerms:'🔑 الصلاحيات المحمية',remove:'حذف',empty:'لا يوجد بعد',
+   logNote:'آخر الأحداث والعقوبات اللي نفّذها البوت.',restartNote:'إعادة نشر البوت تأخذ حوالي دقيقة. الإعدادات ما تضيع.',restartBtn:'🔄 إعادة نشر البوت',
+   online:'أونلاين',offline:'أوفلاين',footNote:'لوحة مستقلة لهذا البوت فقط',
+   ownerId:'آي دي مالك البوت',guildId:'آي دي السيرفر',logChannelId:'آي دي روم اللوق',enableAll:'تفعيل الاستجابة الفورية',alerts:'إشعارات اللوق',
+   deleteThreshold:'عدد الحذف قبل الباي',deleteWindowMs:'نافذة الحذف (مللي)',spamThreshold:'رسائل السبام السريع',spamWindowMs:'نافذة السبام السريع (مللي)',
+   spamTimeoutMinutes:'مدة التايم أوت (دقائق)',slowSpamThreshold:'رسائل السبام البطيء',slowSpamWindowMs:'نافذة السبام البطيء (مللي)',
+   channelCreateThreshold:'عدد القنوات قبل الطرد',channelCreateWindowMs:'نافذة إنشاء القنوات (مللي)',massBanThreshold:'عدد البانات قبل الباي',
+   massBanWindowMs:'نافذة البانات (مللي)',massKickThreshold:'عدد الكيكات قبل الباي',massKickWindowMs:'نافذة الكيكات (مللي)',
+   webhookStrikes:'تغييرات الويب هوك قبل العقاب',emojiStrikes:'حذف الإيموجي قبل العقاب',permissionEditStrikes:'تعديل الصلاحيات قبل العقاب',
+   kickBotsOnJoin:'طرد أي بوت يدخل فوراً',roleProtection:'حماية الرتب',channelProtection:'حماية القنوات',memberProtection:'حماية الأعضاء',
+   messageProtection:'حماية الرسائل',emojiProtection:'حماية الإيموجي',webhookProtection:'حماية الويب هوكس',banProtection:'حماية من البان',kickProtection:'حماية من الكيك',
+   supportRoleId:'آي دي رول الدعم',categoryId:'آي دي الكاتيجوري',ticketLimit:'حد التذاكر لكل شخص',color:'لون البانل',panelTitle:'عنوان البانل',
+   panelDescription:'وصف البانل',panelButtonLabel:'نص الزر',ticketWelcomeTitle:'عنوان رسالة التذكرة',ticketWelcomeDescription:'وصف رسالة التذكرة',
+   mentionWarnHours:'ساعات قبل التحذير',mentionTimeoutHours:'ساعات قبل التايم أوت',mentionTimeoutEnabled:'تفعيل تايم أوت التنبيه'
+ },
+ en:{ invite:'➕ Add bot now', features:'✨ View features', control:'🎛️ Control', addInvite:'Add bot now',
+   badge:'🟢 Online 24/7', brandSub:'Discord bot', prevSub:'Quick control panel',
+   menu1:'Security',menu1d:'Instant response & auto restore',menu2:'Control',menu2d:'Every setting in one place',menu3:'Features',menu3d:'See everything the bot does',
+   st1:'Always online',st2:'Changes applied',st3:'Arabic & English',
+   kFeatures:'✨ FEATURES',hFeatures:'Everything you need',pFeatures:'A toolkit built to keep your server running and protected without manual work.',
+   kHow:'🚀 GET STARTED',hHow:'Just three steps',
+   kControl:'🎛️ CONTROL',hControl:'Control panel',pControl:'Change anything here — updates reach the bot within 30 seconds, no redeploy.',
+   tabSettings:'⚙️ Settings',tabLog:'📜 Event log',tabRestart:'🔄 Redeploy',
+   settingsNote:'Time values are in milliseconds. Changes are saved automatically and reach the bot instantly.',
+   save:'💾 Save settings',saving:'⏳ Saving...',saved:'✅ Saved — bot will apply within seconds',fail:'❌ Save failed',
+   permNote:'Users exempt from automatic punishment. Add a Discord ID or @mention.',hPerms:'🔑 Protected users',remove:'Remove',empty:'Nothing yet',
+   logNote:'Recent events and punishments executed by the bot.',restartNote:'Redeploy takes about a minute. Settings are never lost.',restartBtn:'🔄 Redeploy bot',
+   online:'Online',offline:'Offline',footNote:'A standalone panel for this bot only',
+   ownerId:'Bot owner ID',guildId:'Server ID',logChannelId:'Log channel ID',enableAll:'Enable instant response',alerts:'Log channel alerts',
+   deleteThreshold:'Deletes before BAN',deleteWindowMs:'Delete window (ms)',spamThreshold:'Fast spam messages',spamWindowMs:'Fast spam window (ms)',
+   spamTimeoutMinutes:'Timeout minutes',slowSpamThreshold:'Slow spam messages',slowSpamWindowMs:'Slow spam window (ms)',
+   channelCreateThreshold:'Channels before kick',channelCreateWindowMs:'Channel create window (ms)',massBanThreshold:'Bans before BAN',
+   massBanWindowMs:'Ban window (ms)',massKickThreshold:'Kicks before BAN',massKickWindowMs:'Kick window (ms)',
+   webhookStrikes:'Webhook changes before action',emojiStrikes:'Emoji deletes before action',permissionEditStrikes:'Permission edits before action',
+   kickBotsOnJoin:'Kick any bot immediately on join',roleProtection:'Role protection',channelProtection:'Channel protection',memberProtection:'Member protection',
+   messageProtection:'Message protection',emojiProtection:'Emoji protection',webhookProtection:'Webhook protection',banProtection:'Anti-ban',kickProtection:'Anti-kick',
+   supportRoleId:'Support role ID',categoryId:'Category ID',ticketLimit:'Tickets per user',color:'Panel color',panelTitle:'Panel title',
+   panelDescription:'Panel description',panelButtonLabel:'Button label',ticketWelcomeTitle:'Ticket welcome title',ticketWelcomeDescription:'Ticket welcome description',
+   mentionWarnHours:'Hours before warning',mentionTimeoutHours:'Hours before timeout',mentionTimeoutEnabled:'Enable mention timeout'
+ }
+};
+
+const SEC_SCHEMA = [
+ {id:'secIds',title:'📌 IDs',ar:'📌 المعرّفات',titleKey:'hSecIds',fields:[{k:'ownerId',t:'text',h:'ownerId'},{k:'guildId',t:'text',h:'guildId'},{k:'logChannelId',t:'text',h:'logChannelId'}]},
+ {id:'secDelete',title:'🗑️ Consecutive deletes',ar:'🗑️ الحذف المتتالي',titleKey:'hSecDelete',fields:[{k:'instantResponse.deleteThreshold',t:'number',h:'deleteThreshold'},{k:'instantResponse.deleteWindowMs',t:'number',h:'deleteWindowMs'}]},
+ {id:'secSpam',title:'💬 Spam',ar:'💬 السبام',titleKey:'hSecSpam',fields:[{k:'instantResponse.spamThreshold',t:'number',h:'spamThreshold'},{k:'instantResponse.spamWindowMs',t:'number',h:'spamWindowMs'},{k:'instantResponse.spamTimeoutMinutes',t:'number',h:'spamTimeoutMinutes'},{k:'instantResponse.slowSpamThreshold',t:'number',h:'slowSpamThreshold'},{k:'instantResponse.slowSpamWindowMs',t:'number',h:'slowSpamWindowMs'}]},
+ {id:'secRaid',title:'🚨 Raid & bots',ar:'🚨 الرايد والبوتات',titleKey:'hSecRaid',fields:[{k:'instantResponse.channelCreateThreshold',t:'number',h:'channelCreateThreshold'},{k:'instantResponse.channelCreateWindowMs',t:'number',h:'channelCreateWindowMs'},{k:'instantResponse.massBanThreshold',t:'number',h:'massBanThreshold'},{k:'instantResponse.massBanWindowMs',t:'number',h:'massBanWindowMs'},{k:'instantResponse.massKickThreshold',t:'number',h:'massKickThreshold'},{k:'instantResponse.massKickWindowMs',t:'number',h:'massKickWindowMs'},{k:'instantResponse.webhookStrikes',t:'number',h:'webhookStrikes'},{k:'instantResponse.emojiStrikes',t:'number',h:'emojiStrikes'},{k:'instantResponse.permissionEditStrikes',t:'number',h:'permissionEditStrikes'}]},
+ {id:'secToggles',title:'🔘 Enable / disable',ar:'🔘 تشغيل / إيقاف',titleKey:'hSecToggles',fields:[
+  {k:'instantResponse.enabled',t:'bool',h:'enableAll'},{k:'instantResponse.alertEnabled',t:'bool',h:'alerts'},{k:'instantResponse.kickBotsOnJoin',t:'bool',h:'kickBotsOnJoin'},
+  {k:'protectionSettings.roleProtection',t:'bool',h:'roleProtection'},{k:'protectionSettings.channelProtection',t:'bool',h:'channelProtection'},{k:'protectionSettings.memberProtection',t:'bool',h:'memberProtection'},
+  {k:'protectionSettings.messageProtection',t:'bool',h:'messageProtection'},{k:'protectionSettings.emojiProtection',t:'bool',h:'emojiProtection'},{k:'protectionSettings.webhookProtection',t:'bool',h:'webhookProtection'},
+  {k:'protectionSettings.banProtection',t:'bool',h:'banProtection'},{k:'protectionSettings.kickProtection',t:'bool',h:'kickProtection'}]}
+];
+const TICKET_SCHEMA = [
+ {id:'tickIds',title:'📌 IDs',ar:'📌 المعرّفات',titleKey:'hTickIds',fields:[{k:'supportRoleId',t:'text',h:'supportRoleId'},{k:'categoryId',t:'text',h:'categoryId'},{k:'logChannelId',t:'text',h:'logChannelId'},{k:'ticketLimit',t:'number',h:'ticketLimit'}]},
+ {id:'tickPanel',title:'🎛️ Ticket panel',ar:'🎛️ لوحة التذاكر',titleKey:'hTickPanel',fields:[{k:'panelTitle',t:'text',h:'panelTitle'},{k:'panelDescription',t:'textarea',h:'panelDescription'},{k:'panelButtonLabel',t:'text',h:'panelButtonLabel'}]},
+ {id:'tickWelcome',title:'👋 Ticket welcome',ar:'👋 رسالة التذكرة',titleKey:'hTickWelcome',fields:[{k:'ticketWelcomeTitle',t:'text',h:'ticketWelcomeTitle'},{k:'ticketWelcomeDescription',t:'textarea',h:'ticketWelcomeDescription'}]},
+ {id:'tickMention',title:'⏰ Mentions',ar:'⏰ التنبيهات',titleKey:'hTickMention',fields:[{k:'mentionWarnHours',t:'number',h:'mentionWarnHours'},{k:'mentionTimeoutHours',t:'number',h:'mentionTimeoutHours'},{k:'mentionTimeoutEnabled',t:'bool',h:'mentionTimeoutEnabled'}]}
+];
+
+let lang=localStorage.getItem('panel-lang')||'ar';
+let state=null;
+function T(k){return (UI[lang]&&UI[lang][k])||k}
+function getPath(o,p){return p.split('.').reduce((a,k)=>a==null?undefined:a[k],o)}
+function setPath(o,p,v){const ks=p.split('.');let a=o;for(let i=0;i<ks.length-1;i++){if(!a[ks[i]]||typeof a[ks[i]]!=='object')a[ks[i]]={};a=a[ks[i]]}a[ks[ks.length-1]]=v}
+function toggleLang(){lang=lang==='ar'?'en':'ar';localStorage.setItem('panel-lang',lang);render()}
+
+function applyLang(){
+ const m=state?.meta||{};
+ document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+ document.getElementById('langBtn').textContent=lang==='ar'?'EN':'العربية';
+ document.getElementById('brandName').textContent=lang==='ar'?(m.fixedName||'…'):(m.fixedNameEn||m.fixedName||'…');
+ document.getElementById('brandSub').textContent=T('brandSub');
+ document.getElementById('heroName').textContent=lang==='ar'?(m.fixedName||'…'):(m.fixedNameEn||m.fixedName||'…');
+ document.getElementById('tagline').textContent=lang==='ar'?(m.taglineAr||''):(m.taglineEn||'');
+ document.getElementById('desc').textContent=lang==='ar'?(m.descAr||''):(m.descEn||'');
+ document.getElementById('badge').textContent=T('badge');
+ document.getElementById('prevName').textContent=lang==='ar'?(m.fixedName||''):(m.fixedNameEn||m.fixedName||'');
+ document.getElementById('prevSub').textContent=T('prevSub');
+ for(const k of ['inviteBtn','prevInvite','footInvite']) document.getElementById(k).textContent=T(k==='footInvite'?'addInvite':k==='inviteBtn'?'invite':'addInvite');
+ document.getElementById('featuresBtn').textContent=T('features');
+ document.getElementById('controlBtn').textContent=T('control');
+ document.getElementById('prevFeat').textContent=T('features');
+ document.getElementById('menu1').textContent=T('menu1');document.getElementById('menu1d').textContent=T('menu1d');
+ document.getElementById('menu2').textContent=T('menu2');document.getElementById('menu2d').textContent=T('menu2d');
+ document.getElementById('menu3').textContent=T('menu3');document.getElementById('menu3d').textContent=T('menu3d');
+ document.getElementById('st1').textContent=T('st1');document.getElementById('st2').textContent=T('st2');document.getElementById('st3').textContent=T('st3');
+ document.getElementById('kFeatures').textContent=T('kFeatures');document.getElementById('hFeatures').textContent=T('hFeatures');document.getElementById('pFeatures').textContent=T('pFeatures');
+ document.getElementById('kHow').textContent=T('kHow');document.getElementById('hHow').textContent=T('hHow');
+ document.getElementById('kControl').textContent=T('kControl');document.getElementById('hControl').textContent=T('hControl');document.getElementById('pControl').textContent=T('pControl');
+ document.getElementById('tabSettings').textContent=T('tabSettings');document.getElementById('tabLog').textContent=T('tabLog');document.getElementById('tabRestart').textContent=T('tabRestart');
+ document.getElementById('settingsNote').textContent=T('settingsNote');document.getElementById('saveBtn').textContent=T('save');
+ document.getElementById('permNote').textContent=T('permNote');document.getElementById('hPerms').textContent=T('hPerms');
+ document.getElementById('logNote').textContent=T('logNote');document.getElementById('restartNote').textContent=T('restartNote');document.getElementById('restartBtn').textContent=T('restartBtn');
+ document.getElementById('footName').textContent=lang==='ar'?(m.fixedName||''):(m.fixedNameEn||m.fixedName||'');
+ document.getElementById('footNote').textContent=T('footNote');
+ const s=state?.status||{};
+ document.getElementById('statusText').textContent=s.online?T('online'):T('offline');
+ document.getElementById('dot').classList.toggle('on',!!s.online);
+}
+
+function fieldHtml(f,data){
+ const v=getPath(data,f.k),label=T(f.h);
+ if(f.t==='bool')return `<label class="check"><input type="checkbox" data-path="${f.k}" data-type="bool" ${v?'checked':''}/><span>${label}</span></label>`;
+ if(f.t==='textarea')return `<label><span class="lbl">${label}</span><textarea data-path="${f.k}" data-type="textarea">${v??''}</textarea></label>`;
+ return `<label><span class="lbl">${label}</span><input type="${f.t==='number'?'number':'text'}" data-path="${f.k}" data-type="${f.t}" value="${v??''}"/></label>`;
+}
+function renderSettings(){
+ if(!state)return;
+ const schemas=state.botKey==='security'?SEC_SCHEMA:TICKET_SCHEMA;
+ document.getElementById('settingsGrid').innerHTML=schemas.map(s=>`<div class="card"><h4>${lang==='ar'&&s.ar? s.ar : s.title}</h4>${s.fields.map(f=>fieldHtml(f,state.settings)).join('')}</div>`).join('');
+ document.getElementById('permCard').style.display=state.botKey==='security'?'block':'none';
+ renderPerms();
+}
+function renderPerms(){
+ const ids=state?.settings?.protectAllowed||[],el=document.getElementById('permList');
+ el.innerHTML=ids.length?ids.map(id=>`<li><code>${id}</code><button class="btn danger small" onclick="removePerm('${id}')">${T('remove')}</button></li>`).join(''):`<li>${T('empty')}</li>`;
+}
+function addPerm(){
+ const inp=document.getElementById('permInput'),id=inp.value.trim().replace(/[<@!>]/g,'');
+ if(!/^\d{15,25}$/.test(id)){toast('❌ Invalid Discord ID');return}
+ if(!Array.isArray(state.settings.protectAllowed))state.settings.protectAllowed=[];
+ if(!state.settings.protectAllowed.includes(id))state.settings.protectAllowed.push(id);
+ inp.value='';renderPerms();postSettings().then(()=>toast(T('saved')));
+}
+function removePerm(id){state.settings.protectAllowed=(state.settings.protectAllowed||[]).filter(x=>x!==id);renderPerms();postSettings().then(()=>toast(T('saved')))}
+function renderFeatures(){
+ const m=state.meta,arr=lang==='ar'?(m.featuresAr||[]):(m.featuresEn||[]);
+ document.getElementById('featureGrid').innerHTML=arr.map(f=>`<div class="card"><div class="ic">${f.icon}</div><h4>${f.title}</h4><p>${f.desc}</p></div>`).join('');
+ document.getElementById('steps').innerHTML=(lang==='ar'?m.stepsAr:m.stepsEn).map(s=>`<div class="step">${s}</div>`).join('');
+}
+function renderEvents(){
+ const el=document.getElementById('eventList'),arr=state.events||[];
+ el.innerHTML=arr.length?arr.map(e=>`<div class="event" style="border-inline-start-color:${e.color||'var(--accent)'}"><div class="t">${new Date(e.ts).toLocaleString()} · ${e.type}</div><strong>${e.title}</strong><div class="d">${e.description||''}</div></div>`).join(''):`<div class="card">${T('empty')}</div>`;
+}
+function showView(v){
+ document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v));
+ document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+v));
+}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window._t);window._t=setTimeout(()=>el.classList.remove('show'),3500)}
+function collect(){
+ document.querySelectorAll('#settingsGrid [data-path]').forEach(el=>{
+  const v=el.dataset.type==='bool'?el.checked:el.dataset.type==='number'?Number(el.value):el.value;
+  setPath(state.settings,el.dataset.path,v);
+ });
+}
+async function postSettings(){
+ const r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.settings)});
+ const j=await r.json();if(!j.ok)throw new Error(j.error||'fail');return j;
+}
+async function saveSettings(){try{collect();toast(T('saving'));await postSettings();toast(T('saved'))}catch(e){toast(T('fail')+' '+e.message)}}
+async function restartBot(){if(!confirm(T('restartBtn')+'?'))return;try{const r=await fetch('/api/restart',{method:'POST'});const j=await r.json();toast(j.ok?T('saved'):T('fail'))}catch(e){toast(T('fail'))}}
+function render(){
+ applyLang();if(!state)return;
+ const m=state.meta;document.documentElement.style.setProperty('--accent',m.accent||'#5865f2');
+ if(m.avatar){document.getElementById('avatar').src=m.avatar;document.getElementById('prevAvatar').src=m.avatar}
+ for(const id of ['inviteBtn','prevInvite','footInvite'])document.getElementById(id).href=m.invite;
+ document.title=(lang==='ar'?m.fixedName:m.fixedNameEn)+' — Panel';
+ renderFeatures();renderSettings();renderEvents();
+}
+async function load(){try{const r=await fetch('/api/state');state=await r.json();render()}catch(e){toast('❌ '+e.message)}}
+render();load();setInterval(load,15000);
+</script>
+</body>
+</html>
