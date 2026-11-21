@@ -241,19 +241,11 @@ html[dir=rtl] .how-list li{padding:10px 48px 10px 12px}
       <button class="btn small" onclick="closeLink()" id="lmClose">إغلاق</button>
     </div>
     <div id="linkStep1">
-      <p class="note" id="lmHow">افتح الديسكورد، روح ل أي سيرفر البوت فيه، واكتب الأمر هذا بالشات:</p>
-      <div class="code-box" id="lmCode">------</div>
-      <ul class="how-list" id="lmSteps">
-        <li id="lmS1">انسخ الكود فوق (اضغط عليه).</li>
-        <li id="lmS2">افتح الديسكورد واكتب <b>/link</b> ثم الصق الكود في خانة <b>code</b>.</li>
-        <li id="lmS3">ارجع لهنا — السيرفرات بتظهر لوحدها.</li>
-      </ul>
-      <div style="display:flex;gap:9px;flex-wrap:wrap">
-        <button class="btn main small" onclick="copyCode()" id="lmCopy">📋 انسخ الأمر</button>
-        <a class="btn small" id="lmOpen" href="https://discord.com/app" target="_blank">🤖 افتح الديسكورد</a>
-        <button class="btn small" onclick="checkLink()" id="lmCheck">✅ تم، تحقق</button>
+      <p class="note" id="lmHow">سجّل دخولك بديسكورد بضغطة واحدة — الموقع يقرأ سيرفراتك اللي أنت أدمن فيها ويرجعك مباشرة.</p>
+      <div style="display:grid;place-items:center;gap:14px;padding:22px 0 10px">
+        <a class="btn main" id="lmConnect" href="/auth/login" style="font-size:15px;padding:14px 28px">🔗 ربط ديسكورد</a>
+        <p class="link-note" id="lmNote"></p>
       </div>
-      <p class="link-note" id="lmNote"></p>
     </div>
   </div>
 </div>
@@ -271,7 +263,7 @@ html[dir=rtl] .how-list li{padding:10px 48px 10px 12px}
     <div class="srv-grid" id="srvGrid"></div>
     <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:18px">
       <button class="btn small" onclick="refreshServers()" id="svRefresh">🔄 تحديث القائمة</button>
-      <button class="btn small" onclick="openLinkModal()" id="svRelink">🔗 ربط حساب ثاني</button>
+      <button class="btn small" onclick="relink()" id="svRelink">🔗 ربط حساب ثاني</button>
       <button class="btn small" onclick="addManualServer()" id="svAdd">➕ أضف سيرفر يدوياً</button>
     </div>
     <p class="link-note" id="svNote"></p>
@@ -289,7 +281,7 @@ const UI = {
    editNow:'✏️ عدّل الإعدادات الآن',editHint:'اضغط على أي بطاقة تروح مباشرة للإعداد اللي يخصها — أو استخدم زر التعديل.',
    edit:'✏️ تعديل',backupEnabled:'تفعيل النسخ الاحتياطي',autoBackupInterval:'فترة النسخ الاحتياطي (مللي)',
    linkTitle:'🔗 اربط حساب ديسكوردك',linkSub:'خطوة واحدة وبعدها تختار السيرفر اللي تبي تديره',
-    linkHow:'افتح الديسكورد، روح ل أي سيرفر البوت فيه، واكتب الأمر هذا بالشات:',
+    linkHow:'سجّل دخولك بديسكورد بضغطة واحدة — الموقع يقرأ سيرفراتك اللي أنت أدمن فيها ويرجعك مباشرة.',connect:'🔗 ربط ديسكورد',
     linkS1:'انسخ الكود فوق (اضغط عليه).',linkS2:'اكتب /link والصق الكود في خانة code.',linkS3:'ارجع لهنا — السيرفرات بتظهر لوحدها.',
     copy:'📋 انسخ الأمر',copied:'✅ تم النسخ',openDiscord:'🤖 افتح الديسكورد',check:'✅ تم، تحقق',
     checking:'⏳ جاري التحقق...',linkFail:'ما لقينا الربط بعد — تأكد إنك كتبت الأمر في سيرفر البوت فيه ورولك أدمن.',
@@ -330,7 +322,7 @@ const UI = {
  en:{ invite:'➕ Add bot now', features:'✨ View features', control:'🎛️ Control', addInvite:'Add bot now',
    badge:'🟢 Online 24/7', brandSub:'Discord bot',
     linkTitle:'🔗 Link your Discord',linkSub:'One step, then pick the server you want to manage',
-    linkHow:'Open Discord, go to any server the bot is in, and type this command:',
+    linkHow:'Sign in with Discord in one click — we read the servers where you are an admin and bring you straight back.',connect:'🔗 Link Discord',
     linkS1:'Copy the code above.',linkS2:'Type /link and paste the code in the code field.',linkS3:'Come back here — your servers appear automatically.',
     copy:'📋 Copy command',copied:'✅ Copied',openDiscord:'🤖 Open Discord',check:'✅ Done, check',
     checking:'⏳ Checking...',linkFail:'No link found yet — make sure you used the command in a server the bot is in and you are an admin.',
@@ -423,12 +415,7 @@ function applyLang(){
  document.getElementById('lmTitle').textContent=T('linkTitle');
  document.getElementById('lmSub').textContent=T('linkSub');
  document.getElementById('lmHow').textContent=T('linkHow');
- document.getElementById('lmS1').textContent=T('linkS1');
- document.getElementById('lmS2').innerHTML=T('linkS2');
- document.getElementById('lmS3').textContent=T('linkS3');
- document.getElementById('lmCopy').textContent=T('copy');
- document.getElementById('lmOpen').textContent=T('openDiscord');
- document.getElementById('lmCheck').textContent=T('check');
+ document.getElementById('lmConnect').textContent=T('connect');
  document.getElementById('lmClose').textContent=T('close');
  document.getElementById('svTitle').textContent=T('svTitle');
  document.getElementById('svSub').textContent=T('svSub');
@@ -538,42 +525,18 @@ async function restartBot(){if(!confirm(T('restartBtn')+'?'))return;try{const r=
 function closeLink(){document.getElementById('linkModal').classList.remove('show');if(linkTimer){clearInterval(linkTimer);linkTimer=null}}
 function closeServers(){document.getElementById('serverModal').classList.remove('show')}
 function setLinkNote(text){document.getElementById('lmNote').textContent=text||''}
-function startLinkPolling(){if(linkTimer)clearInterval(linkTimer);linkTimer=setInterval(async()=>{if(!linkCode)return;const d=await fetchLinkStatus();if(d?.status==='linked'){applySession(d);closeLink();openServers()}},3000)}
-async function newLink(){
- try{
-  const r=await fetch('/api/link/start',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
-  const d=await r.json();
-  if(!d.ok)throw new Error(d.error||'fail');
-  linkCode=d.code;localStorage.setItem('971-link-code',linkCode);
-  document.getElementById('lmCode').textContent=linkCode;
-  document.getElementById('lmOpen').href=d.dmUrl||'https://discord.com/app';
-  setLinkNote((d.botName?d.botName+' • ':'')+(d.command||'')+' • '+(d.expiresInMinutes||12)+' min');
-  startLinkPolling();
- }catch(e){setLinkNote('❌ '+e.message);toast('❌ '+e.message)}
-}
+function startOAuth(){location.href='/auth/login'}
+function newLink(){return startOAuth()}
 function openLinkModal(){
  closeServers();document.getElementById('linkModal').classList.add('show');
- if(!linkCode)newLink();
- else{
-  document.getElementById('lmCode').textContent=linkCode;
-  setLinkNote(`/link code:${linkCode}`);
-  startLinkPolling();fetchLinkStatus().then((d)=>{if(d?.status==='linked'){applySession(d);closeLink();openServers()}});
- }
+ setLinkNote(state?.meta?.fixedName||'');
 }
-async function copyCode(){
- const text=`/link code:${linkCode||'------'}`;
- try{await navigator.clipboard.writeText(text);document.getElementById('lmCopy').textContent=T('copied')}
- catch(e){window.prompt(T('copy')+':',text)}
-}
+function copyCode(){return startOAuth()}
+function checkLink(){return startOAuth()}
+function relink(){localStorage.removeItem('971-link-code');linkCode='';sessionUser=null;sessionGuilds=[];return startOAuth()}
 async function fetchLinkStatus(){
  if(!linkCode)return null;
  try{const r=await fetch('/api/link/status?code='+encodeURIComponent(linkCode));return await r.json()}catch(e){return null}
-}
-async function checkLink(){
- const btn=document.getElementById('lmCheck');btn.innerHTML='<span class="spin"></span> '+T('checking');
- const d=await fetchLinkStatus();btn.textContent=T('check');
- if(d?.status==='linked'){applySession(d);closeLink();openServers()}
- else setLinkNote(T('linkFail'));
 }
 function applySession(d){
  if(!d)return;
@@ -618,9 +581,9 @@ function renderServers(){
 }
 async function openServers(){
  closeLink();
- if(!linkCode)return openLinkModal();
+ if(!linkCode)return startOAuth();
  const d=await fetchLinkStatus();
- if(d?.status!=='linked')return openLinkModal();
+ if(d?.status!=='linked')return startOAuth();
  applySession(d);renderServers();document.getElementById('serverModal').classList.add('show');
 }
 async function refreshServers(){
@@ -681,19 +644,31 @@ function render(){
  document.title=(lang==='ar'?m.fixedName:m.fixedNameEn)+' — Panel';
  renderFeatures();renderSettings();renderEvents();updateSessionUI();
 }
-let askedToLink=false;
+let oauthHandled=false;
 async function load(){
  try{
   const r=await fetch('/api/state');state=await r.json();render();
-  if(!askedToLink){
-   askedToLink=true;
-   if(!linkCode)openLinkModal();
-   else{
-    const d=await fetchLinkStatus();
-    if(d?.status==='linked')applySession(d);
-    else if(d?.status==='expired')openLinkModal();
-    else{updateSessionUI();document.getElementById('lmCode').textContent=linkCode;setLinkNote(`/link code:${linkCode}`);startLinkPolling()}
-   }
+  if(oauthHandled)return;
+  oauthHandled=true;
+
+  const params=new URLSearchParams(location.search);
+  const fromOauth=params.get('link');
+  if(fromOauth){
+   linkCode=String(fromOauth).trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,16);
+   localStorage.setItem('971-link-code',linkCode);
+   history.replaceState({},'',location.pathname);
+   const d=await fetchLinkStatus();
+   if(d?.status==='linked'){applySession(d);toast('✅ '+T('linkedAs')+' '+(sessionUser?.username||''));openServers()}
+   else setLinkNote(T('linkFail'));
+   return;
+  }
+
+  if(!linkCode)return startOAuth();
+  const d=await fetchLinkStatus();
+  if(d?.status==='linked')applySession(d);
+  else if(d?.status==='expired'){
+   localStorage.removeItem('971-link-code');linkCode='';sessionUser=null;sessionGuilds=[];
+   return startOAuth();
   }
  }catch(e){toast('❌ '+e.message)}
 }
