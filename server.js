@@ -71,7 +71,7 @@ const META = {
       { icon: '💬', title: 'مكافحة السبام', desc: '١٠ رسائل/٥ ثواني أو ٢٠/٦٠ ثانية → تايم أوت ومسح تلقائي.', target: 'secSpam' },
       { icon: '🚨', title: 'منع الرايد', desc: 'أي بوت غريب يدخل أو ٣ قنوات تنشأ بسرعة → طرد فوري واستعادة.', target: 'secRaid' },
       { icon: '🔑', title: 'صلاحيات محمية', desc: '/protect add و remove و list محفوظة برول دائم داخل السيرفر.', target: 'perms' },
-      { icon: '🔄', title: 'نسخة احتياطية', desc: 'نسخة لكل سيرفر على حدة تتحدث تلقائياً كل ساعة وعند التشغيل.', target: 'secBackup' },
+      { icon: '🔄', title: 'نسخة احتياطية', desc: 'أنت تقرر لكل سيرفر: حفظ أو لا حفظ. الافتراضي لا يحفظ أحد، والنسخة تتحدث كل ساعة للي فعّلته فقط.', target: 'secBackup' },
       { icon: '📜', title: 'سجل الأحداث', desc: 'كل تحذير وعقوبة تظهر لك في تبويب السجل داخل الموقع.', target: 'log' }
     ],
     featuresEn: [
@@ -79,7 +79,7 @@ const META = {
       { icon: '💬', title: 'Anti-spam', desc: '10 msgs/5s or 20/60s → instant timeout and message purge.', target: 'secSpam' },
       { icon: '🚨', title: 'Anti-raid', desc: 'Any bot joins or 3 channels created fast → instant kick and restore.', target: 'secRaid' },
       { icon: '🔑', title: 'Protected permissions', desc: '/protect add, remove and list stored in a persistent Discord role.', target: 'perms' },
-      { icon: '🔄', title: 'Backups', desc: 'Per-server snapshot refreshed hourly and on startup.', target: 'secBackup' },
+      { icon: '🔄', title: 'Backups', desc: 'You decide per server: save or don’t save. Nothing is saved by default; enabled servers refresh hourly.', target: 'secBackup' },
       { icon: '📜', title: 'Event log', desc: 'Every warning and punishment appears in the site log tab.', target: 'log' }
     ],
     stepsAr: ['ضيف البوت لسيرفرك بصلاحيات إدارية', 'ارفع رول البوت لأعلى ترتيب ممكن', 'اضبط الأرقام من تبويب السيطرة — التغيير يوصل خلال ٣٠ ثانية'],
@@ -128,6 +128,8 @@ const DEFAULTS = {
   security: {
     ownerId: '', guildId: '', logChannelId: '',
     backupEnabled: true, autoBackupInterval: 3600000,
+    // اختيار كل سيرفر على حدة — غير مفعّل = ما فيه حفظ ولا استرجاع
+    guildBackupPrefs: {},
     instantResponse: {
       enabled: true, alertEnabled: true, deleteWindowMs: 60000, deleteThreshold: 2,
       spamWindowMs: 5000, spamThreshold: 10, spamTimeoutMinutes: 10,
@@ -249,6 +251,27 @@ app.get('/api/settings/:bot', (req, res) =>
 app.post('/api/settings/:bot', (req, res) =>
   req.params.bot === BOT_KEY ? postSettingsHandler(req, res) : res.status(404).json({ error: 'not found' })
 );
+
+/* ───────────────────────────────────────────────────────────
+   اختيار الحفظ لكل سيرفر على حدة — أنت تقرر، وما فيه حفظ بالافتراضي
+   ─────────────────────────────────────────────────────────── */
+app.get('/api/backup-prefs', (req, res) => {
+  if (BOT_KEY !== 'security') return res.status(404).json({ error: 'not found' });
+  res.json({ ok: true, prefs: settings.guildBackupPrefs || {} });
+});
+app.post('/api/backup-prefs', async (req, res) => {
+  if (BOT_KEY !== 'security') return res.status(404).json({ error: 'not found' });
+  const gid = String(req.body?.guildId || '').replace(/\D/g, '');
+  if (!/^\d{15,25}$/.test(gid)) return res.status(400).json({ ok: false, error: 'invalid guild id' });
+  if (!settings.guildBackupPrefs || typeof settings.guildBackupPrefs !== 'object') settings.guildBackupPrefs = {};
+  settings.guildBackupPrefs[gid] = req.body.enabled === true;
+  try {
+    await saveSettings();
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+  res.json({ ok: true, guildId: gid, enabled: settings.guildBackupPrefs[gid], prefs: settings.guildBackupPrefs });
+});
 
 /* ───────────────────────────────────────────────────────────
    ربط حساب ديسكورد: البوت يرسل نتيجة أمر /link إلى هنا
