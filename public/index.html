@@ -72,6 +72,10 @@ section.blk{padding:44px 0}
 .card .ic{font-size:26px}
 .card h4{margin:12px 0 6px;font-size:15px}
 .card p{margin:0;color:var(--muted);font-size:12.5px}
+.card.clickable{cursor:pointer}
+.card.hl{outline:2px solid var(--accent);box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 18%,transparent),0 16px 40px rgba(0,0,0,.35)}
+.card .edit{margin-top:12px;font-size:11px;font-weight:800;color:color-mix(in srgb,var(--accent) 70%,#fff)}
+.contact-btn{border-color:color-mix(in srgb,#23a55a 50%,transparent);color:#7ee2a8}
 .steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
 .step{counter-increment:s;position:relative;padding:20px 20px 20px 62px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:15px;font-size:13px;color:var(--muted)}
 html[dir=rtl] .step{padding:20px 62px 20px 20px}
@@ -108,6 +112,7 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:24px 0;color:var
   <div class="brand"><img class="avatar" id="avatar" alt="" /><div><span id="brandName">…</span><small id="brandSub">بوت ديسكورد</small></div></div>
   <div class="spacer"></div>
   <span class="pill"><span class="dot" id="dot"></span><span id="statusText">…</span></span>
+  <a class="btn small contact-btn" id="contactTop" href="https://discord.gg/59u69YJzPD" target="_blank">💬 تواصل معنا</a>
   <button class="lang" id="langBtn" onclick="toggleLang()">EN</button>
 </div></header>
 
@@ -123,6 +128,7 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:24px 0;color:var
         <a class="btn main" id="inviteBtn" href="#" target="_blank">➕ ضيف البوت الآن</a>
         <a class="btn ghost" href="#features" id="featuresBtn">✨ شوف المميزات</a>
         <a class="btn ghost" href="#control" id="controlBtn">🎛️ السيطرة</a>
+        <a class="btn ghost contact-btn" id="contactHero" href="https://discord.gg/59u69YJzPD" target="_blank">💬 الديسكورد حقي</a>
       </div>
       <div class="mini-stats">
         <div><b>24/7</b><span id="st1">شغال دايم</span></div>
@@ -140,7 +146,8 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:24px 0;color:var
   </div>
 
   <section class="blk" id="features">
-    <div class="sec-head"><div class="k" id="kFeatures">✨ المميزات</div><h2 id="hFeatures">كل شي تحتاجينه</h2><p id="pFeatures"></p></div>
+    <div class="sec-head" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap"><div style="flex:1;min-width:260px"><div class="k" id="kFeatures">✨ المميزات</div><h2 id="hFeatures">كل شي تحتاجينه</h2><p id="pFeatures"></p></div><a class="btn main small" href="#control" id="editNowBtn">✏️ عدّل الإعدادات الآن</a></div>
+    <p class="note" id="editHint"></p>
     <div class="grid" id="featureGrid"></div>
   </section>
 
@@ -177,13 +184,16 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:24px 0;color:var
   </section>
 </div>
 </main>
-<footer><div class="wrap" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;width:100%"><span id="footName">…</span><span>•</span><span id="footNote">لوحة مستقلة لهذا البوت فقط</span><span class="spacer"></span><a href="#" id="footInvite">Discord Invite ↗</a></div></footer>
+<footer><div class="wrap" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;width:100%"><span id="footName">…</span><span>•</span><span id="footNote">لوحة مستقلة لهذا البوت فقط</span><span class="spacer"></span><a href="https://discord.gg/59u69YJzPD" target="_blank" id="footContact">💬 الديسكورد حقي ↗</a><a href="#" id="footInvite">Discord Invite ↗</a></div></footer>
 <div class="toast" id="toast"></div>
 
 <script>
 const UI = {
  ar:{ invite:'➕ ضيف البوت الآن', features:'✨ شوف المميزات', control:'🎛️ السيطرة', addInvite:'ضيف البوت الآن',
    badge:'🟢 متاح ٢٤/٧', brandSub:'بوت ديسكورد', prevSub:'لوحة التحكم السريعة',
+   contact:'💬 تواصل معنا',contactHero:'💬 الديسكورد حقي',footContact:'💬 الديسكورد حقي ↗',
+   editNow:'✏️ عدّل الإعدادات الآن',editHint:'اضغط على أي بطاقة تروح مباشرة للإعداد اللي يخصها — أو استخدم زر التعديل.',
+   edit:'✏️ تعديل',backupEnabled:'تفعيل النسخ الاحتياطي',autoBackupInterval:'فترة النسخ الاحتياطي (مللي)',
    menu1:'الأمان',menu1d:'حماية فورية واستعادة تلقائية',menu2:'السيطرة',menu2d:'كل الإعدادات من مكان واحد',menu3:'المميزات',menu3d:'شوف كل اللي البوت يسويه',
    st1:'شغال دايم',st2:'تطبيق التعديلات',st3:'عربي وإنجليزي',
    kFeatures:'✨ المميزات',hFeatures:'كل شي تحتاجينه',pFeatures:'مجموعة أدوات مصممة عشان سيرفرك يبقى شغال ومحمي بدون ما تتابعه يدوياً.',
@@ -209,6 +219,9 @@ const UI = {
  },
  en:{ invite:'➕ Add bot now', features:'✨ View features', control:'🎛️ Control', addInvite:'Add bot now',
    badge:'🟢 Online 24/7', brandSub:'Discord bot', prevSub:'Quick control panel',
+   contact:'💬 Contact us',contactHero:'💬 My Discord',footContact:'💬 My Discord ↗',
+   editNow:'✏️ Edit settings now',editHint:'Click any card to jump straight to its setting — or use the edit button.',
+   edit:'✏️ Edit',backupEnabled:'Enable backups',autoBackupInterval:'Backup interval (ms)',
    menu1:'Security',menu1d:'Instant response & auto restore',menu2:'Control',menu2d:'Every setting in one place',menu3:'Features',menu3d:'See everything the bot does',
    st1:'Always online',st2:'Changes applied',st3:'Arabic & English',
    kFeatures:'✨ FEATURES',hFeatures:'Everything you need',pFeatures:'A toolkit built to keep your server running and protected without manual work.',
@@ -243,15 +256,18 @@ const SEC_SCHEMA = [
   {k:'instantResponse.enabled',t:'bool',h:'enableAll'},{k:'instantResponse.alertEnabled',t:'bool',h:'alerts'},{k:'instantResponse.kickBotsOnJoin',t:'bool',h:'kickBotsOnJoin'},
   {k:'protectionSettings.roleProtection',t:'bool',h:'roleProtection'},{k:'protectionSettings.channelProtection',t:'bool',h:'channelProtection'},{k:'protectionSettings.memberProtection',t:'bool',h:'memberProtection'},
   {k:'protectionSettings.messageProtection',t:'bool',h:'messageProtection'},{k:'protectionSettings.emojiProtection',t:'bool',h:'emojiProtection'},{k:'protectionSettings.webhookProtection',t:'bool',h:'webhookProtection'},
-  {k:'protectionSettings.banProtection',t:'bool',h:'banProtection'},{k:'protectionSettings.kickProtection',t:'bool',h:'kickProtection'}]}
+  {k:'protectionSettings.banProtection',t:'bool',h:'banProtection'},{k:'protectionSettings.kickProtection',t:'bool',h:'kickProtection'}]},
+ {id:'secBackup',title:'🔄 Backup',ar:'🔄 النسخ الاحتياطي',fields:[{k:'backupEnabled',t:'bool',h:'backupEnabled'},{k:'autoBackupInterval',t:'number',h:'autoBackupInterval'}]}
 ];
 const TICKET_SCHEMA = [
- {id:'tickIds',title:'📌 IDs',ar:'📌 المعرّفات',titleKey:'hTickIds',fields:[{k:'supportRoleId',t:'text',h:'supportRoleId'},{k:'categoryId',t:'text',h:'categoryId'},{k:'logChannelId',t:'text',h:'logChannelId'},{k:'ticketLimit',t:'number',h:'ticketLimit'}]},
+ {id:'tickIds',title:'📌 IDs',ar:'📌 المعرّفات',fields:[{k:'supportRoleId',t:'text',h:'supportRoleId'},{k:'categoryId',t:'text',h:'categoryId'},{k:'logChannelId',t:'text',h:'logChannelId'},{k:'ticketLimit',t:'number',h:'ticketLimit'}]},
+ {id:'tickColor',title:'🎨 Color',ar:'🎨 الألوان',fields:[{k:'color',t:'color',h:'color'}]},
  {id:'tickPanel',title:'🎛️ Ticket panel',ar:'🎛️ لوحة التذاكر',titleKey:'hTickPanel',fields:[{k:'panelTitle',t:'text',h:'panelTitle'},{k:'panelDescription',t:'textarea',h:'panelDescription'},{k:'panelButtonLabel',t:'text',h:'panelButtonLabel'}]},
  {id:'tickWelcome',title:'👋 Ticket welcome',ar:'👋 رسالة التذكرة',titleKey:'hTickWelcome',fields:[{k:'ticketWelcomeTitle',t:'text',h:'ticketWelcomeTitle'},{k:'ticketWelcomeDescription',t:'textarea',h:'ticketWelcomeDescription'}]},
  {id:'tickMention',title:'⏰ Mentions',ar:'⏰ التنبيهات',titleKey:'hTickMention',fields:[{k:'mentionWarnHours',t:'number',h:'mentionWarnHours'},{k:'mentionTimeoutHours',t:'number',h:'mentionTimeoutHours'},{k:'mentionTimeoutEnabled',t:'bool',h:'mentionTimeoutEnabled'}]}
 ];
 
+const CONTACT='https://discord.gg/59u69YJzPD';
 let lang=localStorage.getItem('panel-lang')||'ar';
 let state=null;
 function T(k){return (UI[lang]&&UI[lang][k])||k}
@@ -269,6 +285,11 @@ function applyLang(){
  document.getElementById('tagline').textContent=lang==='ar'?(m.taglineAr||''):(m.taglineEn||'');
  document.getElementById('desc').textContent=lang==='ar'?(m.descAr||''):(m.descEn||'');
  document.getElementById('badge').textContent=T('badge');
+ document.getElementById('contactTop').textContent=T('contact');
+ document.getElementById('contactHero').textContent=T('contactHero');
+ document.getElementById('footContact').textContent=T('footContact');
+ document.getElementById('editNowBtn').textContent=T('editNow');
+ document.getElementById('editHint').textContent=T('editHint');
  document.getElementById('prevName').textContent=lang==='ar'?(m.fixedName||''):(m.fixedNameEn||m.fixedName||'');
  document.getElementById('prevSub').textContent=T('prevSub');
  for(const k of ['inviteBtn','prevInvite','footInvite']) document.getElementById(k).textContent=T(k==='footInvite'?'addInvite':k==='inviteBtn'?'invite':'addInvite');
@@ -297,6 +318,7 @@ function fieldHtml(f,data){
  const v=getPath(data,f.k),label=T(f.h);
  if(f.t==='bool')return `<label class="check"><input type="checkbox" data-path="${f.k}" data-type="bool" ${v?'checked':''}/><span>${label}</span></label>`;
  if(f.t==='textarea')return `<label><span class="lbl">${label}</span><textarea data-path="${f.k}" data-type="textarea">${v??''}</textarea></label>`;
+ if(f.t==='color')return `<label><span class="lbl">${label}</span><input type="color" data-path="${f.k}" data-type="color" value="${v||'#5865F2'}"/></label>`;
  return `<label><span class="lbl">${label}</span><input type="${f.t==='number'?'number':'text'}" data-path="${f.k}" data-type="${f.t}" value="${v??''}"/></label>`;
 }
 function renderSettings(){
@@ -320,8 +342,17 @@ function addPerm(){
 function removePerm(id){state.settings.protectAllowed=(state.settings.protectAllowed||[]).filter(x=>x!==id);renderPerms();postSettings().then(()=>toast(T('saved')))}
 function renderFeatures(){
  const m=state.meta,arr=lang==='ar'?(m.featuresAr||[]):(m.featuresEn||[]);
- document.getElementById('featureGrid').innerHTML=arr.map(f=>`<div class="card"><div class="ic">${f.icon}</div><h4>${f.title}</h4><p>${f.desc}</p></div>`).join('');
+ document.getElementById('featureGrid').innerHTML=arr.map((f,i)=>`<div class="card clickable" onclick="goEdit('${f.target||''}')"><div class="ic">${f.icon}</div><h4>${f.title}</h4><p>${f.desc}</p><div class="edit">${T('edit')} ↗</div></div>`).join('');
  document.getElementById('steps').innerHTML=(lang==='ar'?m.stepsAr:m.stepsEn).map(s=>`<div class="step">${s}</div>`).join('');
+}
+function goEdit(target){
+ if(target==='log')showView('log');
+ else if(target==='perms'){showView('settings');const el=document.getElementById('permCard');if(el)el.scrollIntoView({behavior:'smooth',block:'center'})}
+ else {showView('settings');const el=document.getElementById(target);if(el)el.scrollIntoView({behavior:'smooth',block:'center'})}
+ document.querySelectorAll('.card.hl').forEach(c=>c.classList.remove('hl'));
+ const hi=target==='perms'?document.getElementById('permCard'):document.getElementById(target);
+ if(hi){hi.classList.add('hl');setTimeout(()=>hi.classList.remove('hl'),2600)}
+ document.getElementById('control').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function renderEvents(){
  const el=document.getElementById('eventList'),arr=state.events||[];
@@ -349,6 +380,7 @@ function render(){
  const m=state.meta;document.documentElement.style.setProperty('--accent',m.accent||'#5865f2');
  if(m.avatar){document.getElementById('avatar').src=m.avatar;document.getElementById('prevAvatar').src=m.avatar}
  for(const id of ['inviteBtn','prevInvite','footInvite'])document.getElementById(id).href=m.invite;
+ for(const id of ['contactTop','contactHero','footContact'])document.getElementById(id).href=CONTACT;
  document.title=(lang==='ar'?m.fixedName:m.fixedNameEn)+' — Panel';
  renderFeatures();renderSettings();renderEvents();
 }
