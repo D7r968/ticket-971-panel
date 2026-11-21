@@ -128,6 +128,7 @@ html[dir=rtl] .how-list li{padding:10px 48px 10px 12px}
 .how-list li::before{content:counter(h);position:absolute;inset-inline-start:11px;top:10px;width:26px;height:26px;border-radius:8px;background:color-mix(in srgb,var(--accent) 25%,transparent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:12px}
 .srv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:12px}
 .srv{position:relative;background:rgba(255,255,255,.04);border:2px solid var(--line);border-radius:15px;padding:14px;cursor:pointer;transition:.18s;min-height:132px}
+.srv.withpref{padding-bottom:48px}
 .srv:hover{transform:translateY(-3px);border-color:var(--accent)}
 .srv.bot{border-color:#23a55a;box-shadow:0 0 0 4px rgba(35,165,90,.13),0 0 26px rgba(35,165,90,.18)}
 .srv img{width:44px;height:44px;border-radius:13px;object-fit:cover;background:#232938}
@@ -135,6 +136,8 @@ html[dir=rtl] .how-list li{padding:10px 48px 10px 12px}
 .srv .meta{font-size:10.5px;color:var(--muted);margin-top:2px}
 .srv .tag{position:absolute;inset-inline-end:10px;top:10px;font-size:9.5px;font-weight:900;border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.08);color:var(--muted)}
 .srv.bot .tag{background:rgba(35,165,90,.2);color:#7ee2a8}
+.srv .prefb{position:absolute;inset-inline-start:10px;bottom:10px;font-size:10px;font-weight:800;padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);cursor:pointer}
+.srv .prefb.on{border-color:#23a55a;background:rgba(35,165,90,.2);color:#7ee2a8}
 .backup-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;padding:13px 15px;border:1px solid rgba(35,165,90,.3);border-radius:14px;background:rgba(35,165,90,.06);margin-bottom:18px}
 .backup-bar .bt{font-size:12px;font-weight:800;margin-inline-end:auto}
 .backup-bar .bt small{display:block;font-weight:500;color:var(--muted);font-size:10.5px}
@@ -158,6 +161,7 @@ html[dir=rtl] .how-list li{padding:10px 48px 10px 12px}
   <div><div class="sb-label" id="sbLabel">أنت تدير الآن</div><div class="sb-name" id="sbName">—</div></div>
   <div class="spacer"></div>
   <button class="btn small" onclick="openServers()" id="sbChange">🔄 تغيير السيرفر</button>
+  <button class="btn small" onclick="toggleCurrentPref()" id="sbPref">🚫 لا تحفظ</button>
   <button class="btn small" onclick="doBackup()" id="sbBackup">💾 حفظ السيرفر</button>
   <button class="btn small danger" onclick="doRestore()" id="sbRestore">♻️ استرجاع</button>
 </div>
@@ -291,7 +295,9 @@ const UI = {
     svRefresh:'🔄 تحديث القائمة',svRelink:'🔗 ربط حساب ثاني',svAdd:'➕ أضف سيرفر يدوياً',
     svEmpty:'ما لقينا سيرفرات — جرّب تحديث القائمة أو اربط حسابك من جديد.',
     svSelect:'✅ صرت تدير',botHere:'البوت موجود',adminHere:'أدمن',members:'عضو',
-    sbLabel:'أنت تدير الآن',sbChange:'🔄 تغيير السيرفر',sbBackup:'💾 حفظ السيرفر',sbRestore:'♻️ استرجاع',
+    sbLabel:'أنت تدير الآن',sbChange:'🔄 تغيير السيرفر',sbPref:'🚫 لا تحفظ',sbBackup:'💾 حفظ السيرفر',sbRestore:'♻️ استرجاع',
+    prefOn:'💾 حفظ مُفعّل',prefOff:'🚫 لا تحفظ',prefHint:'أنت تقرر لكل سيرفر: حفظ أو لا حفظ. ما فيه حفظ إلا اللي تفعّله أنت.',
+    prefSaved:'✅ تم تحديث الاختيار',prefNeed:'فعّل الحفظ لهذا السيرفر أول من زر «لا تحفظ».',
     backup:'💾 حفظ السيرفر',restore:'♻️ استرجاع السيرفر',backupTitle:'حفظ واسترجاع السيرفر',
     backupHint:'ضغطة واحدة تحفظ كل الرتب والقنوات والصلاحيات، وترجعها نفس ما كانت لو أحد خرب.',
     restoring:'⏳ جاري الاسترجاع...',backupDone:'✅ تم الحفظ',restoreDone:'✅ تم الاسترجاع — كل شي رجع كما كان',
@@ -332,7 +338,9 @@ const UI = {
     svRefresh:'🔄 Refresh list',svRelink:'🔗 Link another account',svAdd:'➕ Add server manually',
     svEmpty:'No servers found — refresh the list or link your account again.',
     svSelect:'✅ Now managing',botHere:'Bot is here',adminHere:'Admin',members:'members',
-    sbLabel:'Now managing',sbChange:'🔄 Change server',sbBackup:'💾 Save server',sbRestore:'♻️ Restore',
+    sbLabel:'Now managing',sbChange:'🔄 Change server',sbPref:'🚫 Don’t save',sbBackup:'💾 Save server',sbRestore:'♻️ Restore',
+    prefOn:'💾 Saving on',prefOff:'🚫 Don’t save',prefHint:'You decide per server: save or don’t save. Nothing is saved unless you turn it on.',
+    prefSaved:'✅ Choice updated',prefNeed:'Turn on saving for this server first using the “Don’t save” button.',
     backup:'💾 Save server',restore:'♻️ Restore server',backupTitle:'Save & restore server',
     backupHint:'One click saves every role, channel and permission — and puts everything back exactly as it was.',
     restoring:'⏳ Restoring...',backupDone:'✅ Saved',restoreDone:'✅ Restored — everything is back as it was',
@@ -426,6 +434,7 @@ function applyLang(){
  document.getElementById('svClose').textContent=T('close');
  document.getElementById('sbLabel').textContent=T('sbLabel');
  document.getElementById('sbChange').textContent=T('sbChange');
+ document.getElementById('sbPref').textContent=backupPrefOn()?T('prefOn'):T('prefOff');
  document.getElementById('sbBackup').textContent=T('sbBackup');
  document.getElementById('sbRestore').textContent=T('sbRestore');
  document.getElementById('userName').textContent=sessionUser?(sessionUser.username||sessionUser.id):T('notLinked');
@@ -546,6 +555,27 @@ function applySession(d){
  if(sessionUser?.avatar)document.getElementById('userAvatar').src=sessionUser.avatar;
  applyLang();updateSessionUI();
 }
+function backupPrefs(){return (state?.settings?.guildBackupPrefs)||{}}
+function backupPrefOn(gid){const id=String(gid||selectedGuild?.id||'');return backupPrefs()[id]===true}
+async function setBackupPref(gid,enabled){
+ const r=await fetch('/api/backup-prefs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guildId:String(gid),enabled:!!enabled})});
+ const d=await r.json().catch(()=>({}));
+ if(!r.ok||d.ok===false)throw new Error(d.error||('HTTP '+r.status));
+ if(!state.settings)state.settings={};
+ state.settings.guildBackupPrefs=d.prefs||{};
+ return d;
+}
+async function toggleBackupPref(gid){
+ try{
+  const next=!backupPrefOn(gid);
+  await setBackupPref(gid,next);
+  toast(T('prefSaved'));renderServers();applyLang();
+ }catch(e){toast('❌ '+e.message)}
+}
+async function toggleCurrentPref(){
+ if(!selectedGuild?.id)return openServers();
+ return toggleBackupPref(selectedGuild.id);
+}
 function updateSessionUI(){
  const chip=document.getElementById('userChip');
  document.getElementById('userName').textContent=sessionUser?(sessionUser.username||sessionUser.id):T('notLinked');
@@ -558,6 +588,8 @@ function updateSessionUI(){
   if(selectedGuild.icon)document.getElementById('sbIcon').src=selectedGuild.icon;
  }
  const support=!!(state?.meta?.supportBackup);
+ document.getElementById('sbPref').style.display=support?'':'none';
+ document.getElementById('sbPref').textContent=backupPrefOn()?T('prefOn'):T('prefOff');
  document.getElementById('sbBackup').style.display=support?'':'none';
  document.getElementById('sbRestore').style.display=support?'':'none';
 }
@@ -570,14 +602,19 @@ function allGuilds(){
 }
 function renderServers(){
  const grid=document.getElementById('srvGrid'),list=allGuilds(),m=state?.meta||{};
+ const prefMode=m.supportBackup!==false;
  document.getElementById('svAvatar').src=m.avatar||'';
- grid.innerHTML=list.length?list.map((g)=>`<div class="srv ${g.botPresent?'bot':''}" onclick="selectServer('${g.id}')">
+ grid.innerHTML=list.length?list.map((g)=>{
+  const on=backupPrefOn(g.id);
+  return `<div class="srv ${g.botPresent?'bot':''} ${prefMode?'withpref':''}" onclick="selectServer('${g.id}')">
    <span class="tag">${g.botPresent?T('botHere'):T('adminHere')}</span>
    <img src="${g.icon||''}" alt="" />
    <div class="nm">${g.name||g.id}</div>
    <div class="meta">${g.memberCount?g.memberCount+' '+T('members'):''}${g.owner?' ★':''}</div>
-  </div>`).join(''):`<div class="card" style="grid-column:1/-1">${T('svEmpty')}</div>`;
- document.getElementById('svNote').textContent=m.supportBackup===false?T('secOnly'):'';
+   ${prefMode?`<button class="prefb ${on?'on':''}" onclick="event.stopPropagation();toggleBackupPref('${g.id}')">${on?T('prefOn'):T('prefOff')}</button>`:''}
+  </div>`;
+ }).join(''):`<div class="card" style="grid-column:1/-1">${T('svEmpty')}</div>`;
+ document.getElementById('svNote').textContent=prefMode?T('prefHint'):T('secOnly');
 }
 async function openServers(){
  closeLink();
@@ -616,6 +653,7 @@ function addManualServer(){
 }
 async function doBackup(){
  if(!selectedGuild?.id)return openServers();
+ if(!backupPrefOn())return toast(T('prefNeed'));
  const btn=document.getElementById('sbBackup');btn.innerHTML='<span class="spin"></span>';
  try{
   const r=await fetch('/api/server/backup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guildId:selectedGuild.id})});
@@ -626,6 +664,7 @@ async function doBackup(){
 }
 async function doRestore(){
  if(!selectedGuild?.id)return openServers();
+ if(!backupPrefOn())return toast(T('prefNeed'));
  if(!confirm(T('restore')+'?'))return;
  const btn=document.getElementById('sbRestore');btn.innerHTML='<span class="spin"></span> '+T('restoring');
  try{
