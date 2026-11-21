@@ -101,7 +101,7 @@ const META = {
       { icon: '🎫', title: 'زر واحد', desc: 'لوحة بسيطة تفتح قائمة الأنواع ثم قناة خاصة بالمستخدم وفريق الدعم.', target: 'tickPanel' },
       { icon: '🛒', title: 'أنواع جاهزة', desc: 'شراء من متجر، استفسار، حل مشكلة — عدّل أسماء البانل والنصوص من هنا.', target: 'tickPanel' },
       { icon: '👋', title: 'رسائل جاهزة', desc: 'عنوان البانل ورسالة الترحيب تتعدل من تبويب التذاكر وتوصل فوراً.', target: 'tickWelcome' },
-      { icon: '⏰', title: 'منشن محسوب', desc: 'أول منشن تحذير، والثاني خلال ٢٤ ساعة تايم أوت ٣ ساعات.', target: 'tickMention' },
+      { icon: '⏰', title: 'منشن محسوب', desc: 'أي منشن لأي عضو: تحذيرين، والثالث ورا بعض خلال ٢٤ ساعة تايم أوت ٣ ساعات.', target: 'tickMention' },
       { icon: '🎨', title: 'ألوانك أنت', desc: 'لون البانل والمظاهر كلها من حقل واحد في اللوحة.', target: 'tickColor' },
       { icon: '📊', title: 'حد التذاكر', desc: 'تحكم بعدد التذاكر المسموحة لكل عضو في نفس الوقت.', target: 'tickIds' }
     ],
@@ -109,7 +109,7 @@ const META = {
       { icon: '🎫', title: 'One button', desc: 'Clean panel opens a type menu then a private support channel.', target: 'tickPanel' },
       { icon: '🛒', title: 'Ready types', desc: 'Buy, question, problem — edit panel titles and texts right here.', target: 'tickPanel' },
       { icon: '👋', title: 'Ready texts', desc: 'Panel title and welcome message editable in the Tickets tab, applied instantly.', target: 'tickWelcome' },
-      { icon: '⏰', title: 'Mention rules', desc: 'First mention warns, second within 24h gives a 3 hour timeout.', target: 'tickMention' },
+      { icon: '⏰', title: 'Mention rules', desc: 'Any mention of any member: two warnings, the third in a row within 24h gives a 3 hour timeout.', target: 'tickMention' },
       { icon: '🎨', title: 'Your colors', desc: 'Panel color and embeds controlled from a single field.', target: 'tickColor' },
       { icon: '📊', title: 'Ticket limit', desc: 'Control how many open tickets each member can have.', target: 'tickIds' }
     ],
