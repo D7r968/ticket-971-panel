@@ -2,8 +2,10 @@
 
 const express = require('express');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
+app.set('trust proxy', true);
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -22,6 +24,34 @@ const CLIENTS = {
   ticket: { id: '1573686274420769012', name: 'Ticket 971' }
 };
 const clientId = CLIENTS[BOT_KEY].id;
+const OAUTH_REDIRECT = BOT_KEY === 'ticket'
+  ? 'https://ticket-971-panel.onrender.com/auth/callback'
+  : 'https://security-971-panel.onrender.com/auth/callback';
+
+function parseCookies(req) {
+  const out = {};
+  for (const part of String(req.headers.cookie || '').split(';')) {
+    const i = part.indexOf('=');
+    if (i < 0) continue;
+    try { out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim()); }
+    catch { /* ignore bad cookie */ }
+  }
+  return out;
+}
+function cookieOptions(maxAge) {
+  return { httpOnly: true, sameSite: 'lax', secure: true, path: '/', maxAge };
+}
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+function oauthPage(title, message) {
+  return `<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${escapeHtml(title)}</title><body style="margin:0;background:#0b0e14;color:#e7eaf2;font:16px/1.8 system-ui;display:grid;place-items:center;min-height:100vh;text-align:center;padding:24px">
+  <div style="max-width:520px;background:#141a25;border:1px solid #252d3d;border-radius:20px;padding:30px">
+  <h2>${escapeHtml(title)}</h2><p style="color:#9aa4bb">${escapeHtml(message)}</p>
+  <a href="/" style="display:inline-block;margin-top:12px;background:#5865f2;color:#fff;padding:11px 22px;border-radius:10px;text-decoration:none;font-weight:700">العودة للموقع</a>
+  </div></body></html>`;
+}
 
 const META = {
   security: {
@@ -226,13 +256,17 @@ app.post('/api/settings/:bot', (req, res) =>
 function cleanCode(raw) {
   return String(raw || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16);
 }
-
-app.post('/api/link/start', (req, res) => {
+function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code;
   do {
     code = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   } while (linkSessions.has(code));
+  return code;
+}
+
+app.post('/api/link/start', (req, res) => {
+  const code = generateCode();
 
   linkSessions.set(code, {
     code,
@@ -377,6 +411,126 @@ app.get('/api/servers', async (req, res) => {
     res.json(r.data);
   } catch (err) {
     res.json({ ok: false, guilds: [], error: err.message });
+  }
+});
+
+/* ───────────────────────────────────────────────────────────
+   دخول ديسكورد الحقيقي (OAuth2 + PKCE) — زر واحد يربط الحساب
+   ─────────────────────────────────────────────────────────── */
+app.get('/auth/login', (req, res) => {
+  const state = crypto.randomBytes(16).toString('hex');
+  const verifier = crypto.randomBytes(32).toString('base64url');
+  const challenge = crypto.createHash('sha256').update(verifier).digest('base64url');
+
+  res.cookie('oauth_state', state, cookieOptions(10 * 60 * 1000));
+  res.cookie('oauth_verifier', verifier, cookieOptions(10 * 60 * 1000));
+
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: clientId,
+    scope: 'identify guilds',
+    redirect_uri: OAUTH_REDIRECT,
+    state,
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    prompt: 'consent'
+  });
+  res.redirect('https://discord.com/oauth2/authorize?' + params.toString());
+});
+
+app.get('/auth/callback', async (req, res) => {
+  const cookies = parseCookies(req);
+  if (req.query.error) {
+    return res.status(400).send(oauthPage('تم إلغاء الربط', String(req.query.error)));
+  }
+  if (!req.query.code || !req.query.state || !cookies.oauth_state || !cookies.oauth_verifier ||
+      String(req.query.state) !== cookies.oauth_state) {
+    return res.status(400).send(oauthPage('انتهت الجلسة', 'رجّع حاول من الموقع، الجلسة انتهت أو ما تطابق الكود.'));
+  }
+
+  try {
+    const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        grant_type: 'authorization_code',
+        code: String(req.query.code),
+        redirect_uri: OAUTH_REDIRECT,
+        code_verifier: cookies.oauth_verifier
+      }),
+      signal: AbortSignal.timeout(15000)
+    });
+    const tokenText = await tokenRes.text();
+    if (!tokenRes.ok) throw new Error('Discord token: ' + tokenText.slice(0, 160));
+    const accessToken = JSON.parse(tokenText).access_token;
+    if (!accessToken) throw new Error('Discord token: no access token');
+
+    const discordGet = async (url) => {
+      const r = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(12000)
+      });
+      if (!r.ok) throw new Error(`Discord API ${r.status}`);
+      return r.json();
+    };
+
+    const [user, rawGuilds] = await Promise.all([
+      discordGet('https://discord.com/api/v10/users/@me'),
+      discordGet('https://discord.com/api/v10/users/@me/guilds?limit=200')
+    ]);
+
+    // معرف السيرفرات اللي البوت موجود فيها (من البوت نفسه)
+    const botGuildIds = new Set();
+    try {
+      const botGuilds = await botRequest(`/control/guilds?userId=${clientId}`);
+      if (botGuilds.data?.ok) {
+        for (const g of botGuilds.data.guilds || []) botGuildIds.add(String(g.id));
+      }
+    } catch { /* لو البوت نايم، نكمل بدون حدود خضراء */ }
+
+    const ADMIN = 1n << 3n;
+    const guilds = (Array.isArray(rawGuilds) ? rawGuilds : [])
+      .filter((g) => !!g.owner || ((BigInt(String(g.permissions || '0')) & ADMIN) === ADMIN))
+      .map((g) => ({
+        id: String(g.id),
+        name: g.name || g.id,
+        icon: g.icon
+          ? `https://cdn.discordapp.com/icons/${g.id}/${g.icon}.${String(g.icon).startsWith('a_') ? 'gif' : 'png'}?size=128`
+          : null,
+        owner: !!g.owner,
+        botPresent: botGuildIds.has(String(g.id)),
+        memberCount: g.approximate_member_count || null
+      }));
+
+    const code = generateCode();
+    linkSessions.set(code, {
+      code,
+      status: 'linked',
+      createdAt: Date.now(),
+      linkedAt: Date.now(),
+      userId: String(user.id || ''),
+      username: String(user.global_name || user.username || ''),
+      avatar: user.avatar
+        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
+        : '',
+      guilds
+    });
+
+    events.unshift({
+      ts: Date.now(),
+      type: 'link',
+      title: '🔗 تم ربط ديسكورد',
+      description: `${linkSessions.get(code).username} — ${guilds.length} سيرفر`,
+      color: '#23a55a'
+    });
+
+    res.cookie('oauth_state', '', cookieOptions(0));
+    res.cookie('oauth_verifier', '', cookieOptions(0));
+    res.redirect('/?link=' + code);
+  } catch (err) {
+    console.error('[oauth]', err.message);
+    res.status(500).send(oauthPage('فشل الربط', err.message));
   }
 });
 
